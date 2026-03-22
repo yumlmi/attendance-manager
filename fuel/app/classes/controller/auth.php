@@ -46,6 +46,10 @@ class Controller_Auth extends Controller_Base
 				// ログイン成功時にセッションIDを再生成して固定化を防止
 				Session::rotate();
 
+				// Cookie属性
+				$cookie_secure = $this->is_secure_cookie_required();
+				$cookie_http_only = true;
+
 				// View共有用の最小ユーザー情報をSessionへ保存
 				$login_user = array(
 					'id' => (int) $user['id'],
@@ -62,13 +66,13 @@ class Controller_Auth extends Controller_Base
 				if ($remember)
 				{
 					$expire = 60 * 60 * 24 * 14;
-					Cookie::set($this->cookie_user_id_key, (string) $user['id'], $expire);
-					Cookie::set($this->cookie_login_key, $this->build_login_key($user), $expire);
+					Cookie::set($this->cookie_user_id_key, (string) $user['id'], $expire, null, null, $cookie_secure, $cookie_http_only);
+					Cookie::set($this->cookie_login_key, $this->build_login_key($user), $expire, null, null, $cookie_secure, $cookie_http_only);
 				}
 				else
 				{
-					Cookie::delete($this->cookie_user_id_key);
-					Cookie::delete($this->cookie_login_key);
+					Cookie::delete($this->cookie_user_id_key, null, null, $cookie_secure, $cookie_http_only);
+					Cookie::delete($this->cookie_login_key, null, null, $cookie_secure, $cookie_http_only);
 				}
 
 				Response::redirect('dashboard');
@@ -83,10 +87,13 @@ class Controller_Auth extends Controller_Base
 	 */
 	public function action_logout()
 	{
+		$cookie_secure = $this->is_secure_cookie_required();
+		$cookie_http_only = true;
+
 		// Sessionを全体破棄してログイン画面へ戻す
 		Session::destroy();
-		Cookie::delete($this->cookie_user_id_key);
-		Cookie::delete($this->cookie_login_key);
+		Cookie::delete($this->cookie_user_id_key, null, null, $cookie_secure, $cookie_http_only);
+		Cookie::delete($this->cookie_login_key, null, null, $cookie_secure, $cookie_http_only);
 
 		Response::redirect('login');
 	}
@@ -111,5 +118,13 @@ class Controller_Auth extends Controller_Base
 		}
 
 		return hash_equals((string) $stored_password, (string) $input_password);
+	}
+
+	/**
+	 * HTTPS運用時のみ secure 属性を付与する
+	 */
+	protected function is_secure_cookie_required()
+	{
+		return Input::protocol() === 'https';
 	}
 }
