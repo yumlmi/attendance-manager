@@ -15,7 +15,7 @@ class Create_users
 				'unsigned' => true,
 				'auto_increment' => true,
 			),
-			// ユーザー名（次タスクで UNIQUE 追加）
+			// ユーザー名
 			'username' => array(
 				'constraint' => 50,
 				'type' => 'varchar',
@@ -32,7 +32,7 @@ class Create_users
 				'unsigned' => true,
 				'default' => 1,
 			),
-			// メールアドレス（次タスクで UNIQUE 追加）
+			// メールアドレス
 			'mail' => array(
 				'constraint' => 255,
 				'type' => 'varchar',

@@ -15,7 +15,7 @@ class Create_attendances
 				'unsigned' => true,
 				'auto_increment' => true,
 			),
-			// users.id を参照するユーザーID（FKは次タスクで追加）
+			// users.id を参照するユーザーID
 			'user_id' => array(
 				'constraint' => 11,
 				'type' => 'int',
