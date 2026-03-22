@@ -75,26 +75,7 @@ class Controller_Members extends Controller_Base
 			if (empty($errors))
 			{
 				$now = time();
-				// パスワードを安全にハッシュ化
-				$hashed_password = null;
-				if (function_exists('password_hash'))
-				{
-					$hashed_password = password_hash($password, PASSWORD_DEFAULT);
-					// password_hash() は失敗時に false を返す可能性がある
-					if ($hashed_password === false)
-					{
-						$errors[] = 'パスワードのハッシュ化に失敗しました。別のパスワードをお試しください。';
-					}
-				}
-				elseif (function_exists('hash'))
-				{
-					// password_hash() が無い場合は hash() でハッシュ化
-					$hashed_password = hash('sha256', $password, false);
-				}
-				else
-				{
-					$errors[] = 'パスワード暗号化機能が利用できません。システム管理者に連絡してください。';
-				}
+				$hashed_password = $this->hash_password_for_storage($password, $errors);
 
 				if (empty($errors))
 				{
@@ -222,28 +203,10 @@ class Controller_Members extends Controller_Base
 
 				if ($password !== '')
 				{
-					// パスワード入力がある場合のみ更新（常に安全にハッシュ化）
-					if (function_exists('password_hash'))
+					$hashed_password = $this->hash_password_for_storage($password, $errors);
+					if ($hashed_password !== null)
 					{
-						$hashed_password = password_hash($password, PASSWORD_DEFAULT);
-						// password_hash() は失敗時に false を返す可能性がある
-						if ($hashed_password === false)
-						{
-							$errors[] = 'パスワードのハッシュ化に失敗しました。別のパスワードをお試しください。';
-						}
-						else
-						{
-							$update['password'] = $hashed_password;
-						}
-					}
-					elseif (function_exists('hash'))
-					{
-						// password_hash() が無い場合は hash() でハッシュ化
-						$update['password'] = hash('sha256', $password, false);
-					}
-					else
-					{
-						$errors[] = 'パスワード暗号化機能が利用できません。システム管理者に連絡してください。';
+						$update['password'] = $hashed_password;
 					}
 				}
 
@@ -345,5 +308,32 @@ class Controller_Members extends Controller_Base
 		}
 
 		Response::redirect('members');
+	}
+
+	/**
+	 * DB保存用パスワードを生成
+	 *
+	 * @param string $password
+	 * @param array  $errors
+	 * @return string|null
+	 */
+	protected function hash_password_for_storage($password, array &$errors)
+	{
+		if ( ! function_exists('password_hash'))
+		{
+			\Log::error('password_hash is not available on this environment');
+			$errors[] = 'パスワード暗号化機能が利用できません。システム管理者に連絡してください。';
+			return null;
+		}
+
+		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+		if ($hashed_password === false)
+		{
+			\Log::error('password_hash failed when storing member password');
+			$errors[] = 'パスワードのハッシュ化に失敗しました。別のパスワードをお試しください。';
+			return null;
+		}
+
+		return $hashed_password;
 	}
 }
