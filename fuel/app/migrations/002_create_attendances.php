@@ -52,8 +52,17 @@ class Create_attendances
 			),
 		), array('id'));
 
-		// 外部キー制約: user_id -> users.id（削除時はRESTRICT）
-		\DBUtil::add_foreign_key('attendances', 'user_id', 'users', 'id', 'RESTRICT', 'RESTRICT');
+		// 外部キー制約: user_id -> users.id（削除・更新時はRESTRICT）
+		\DBUtil::add_foreign_key('attendances', array(
+			'constraint' => 'fk_attendances_user_id',
+			'key' => 'user_id',
+			'reference' => array(
+				'table' => 'users',
+				'column' => 'id',
+			),
+			'on_update' => 'RESTRICT',
+			'on_delete' => 'RESTRICT',
+		));
 
 		// 複合インデックス: (user_id, attendance_date) でユーザーごとの日付検索を高速化
 		\DBUtil::create_index('attendances', array('user_id', 'attendance_date'), 'idx_attendances_user_date');
@@ -65,7 +74,7 @@ class Create_attendances
 		\DBUtil::drop_index('attendances', 'idx_attendances_user_date');
 
 		// 外部キー制約を削除
-		\DBUtil::drop_foreign_key('attendances', array('user_id'));
+		\DBUtil::drop_foreign_key('attendances', 'fk_attendances_user_id');
 
 		// attendances テーブルを削除
 		\DBUtil::drop_table('attendances');

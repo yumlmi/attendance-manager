@@ -17,9 +17,9 @@
  * response body and status.
  *
  * @package  app
- * @extends  Controller
+ * @extends  Controller_Base
  */
-class Controller_Welcome extends Controller
+class Controller_Welcome extends Controller_Base
 {
 	/**
 	 * The basic welcome message
