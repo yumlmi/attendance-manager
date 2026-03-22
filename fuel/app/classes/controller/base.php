@@ -123,6 +123,9 @@ class Controller_Base extends Controller
 		// 正常なCookieであればSessionへ再設定
 		Session::set($this->session_user_key, $login_user);
 
+		// Cookie復元で認証成立した場合もセッションIDを再生成して固定化を防止
+		Session::rotate();
+
 		return $login_user;
 	}
 
