@@ -75,8 +75,8 @@ class Controller_Members extends Controller_Base
 			if (empty($errors))
 			{
 				$now = time();
-				// PHP組み込み関数が使える環境ではハッシュ化して保存
-				$hashed_password = $password;
+				// パスワードを安全にハッシュ化
+				$hashed_password = null;
 				if (function_exists('password_hash'))
 				{
 					$hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -85,6 +85,15 @@ class Controller_Members extends Controller_Base
 					{
 						$errors[] = 'パスワードのハッシュ化に失敗しました。別のパスワードをお試しください。';
 					}
+				}
+				elseif (function_exists('hash'))
+				{
+					// password_hash() が無い場合は hash() でハッシュ化
+					$hashed_password = hash('sha256', $password, false);
+				}
+				else
+				{
+					$errors[] = 'パスワード暗号化機能が利用できません。システム管理者に連絡してください。';
 				}
 
 				if (empty($errors))
@@ -189,7 +198,7 @@ class Controller_Members extends Controller_Base
 
 				if ($password !== '')
 				{
-					// パスワード入力がある場合のみ更新
+					// パスワード入力がある場合のみ更新（常に安全にハッシュ化）
 					if (function_exists('password_hash'))
 					{
 						$hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -203,9 +212,14 @@ class Controller_Members extends Controller_Base
 							$update['password'] = $hashed_password;
 						}
 					}
+					elseif (function_exists('hash'))
+					{
+						// password_hash() が無い場合は hash() でハッシュ化
+						$update['password'] = hash('sha256', $password, false);
+					}
 					else
 					{
-						$update['password'] = $password;
+						$errors[] = 'パスワード暗号化機能が利用できません。システム管理者に連絡してください。';
 					}
 				}
 
