@@ -61,6 +61,8 @@ class Controller_Base extends Controller
 	 */
 	protected function build_login_key(array $user)
 	{
+		// Config::get は未ロード設定を自動ロードしないため、ここで明示ロードする
+		\Config::load('crypt', true);
 		$secret = \Config::get('crypt.crypto_hmac');
 
 		if (empty($secret))
