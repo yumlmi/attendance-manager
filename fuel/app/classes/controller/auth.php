@@ -43,6 +43,9 @@ class Controller_Auth extends Controller_Base
 			}
 			else
 			{
+				// ログイン成功時にセッションIDを再生成して固定化を防止
+				Session::rotate();
+
 				// View共有用の最小ユーザー情報をSessionへ保存
 				$login_user = array(
 					'id' => (int) $user['id'],
@@ -80,8 +83,8 @@ class Controller_Auth extends Controller_Base
 	 */
 	public function action_logout()
 	{
-		// Session/Cookieを削除してログイン画面へ戻す
-		Session::delete($this->session_user_key);
+		// Sessionを全体破棄してログイン画面へ戻す
+		Session::destroy();
 		Cookie::delete($this->cookie_user_id_key);
 		Cookie::delete($this->cookie_login_key);
 
