@@ -52,7 +52,7 @@ class Controller_Base extends Controller
 		// ログイン必須画面で未ログインの場合はログイン画面へ遷移
 		if ($this->require_login and empty($login_user))
 		{
-			Response::redirect('auth/login');
+			Response::redirect('login');
 		}
 	}
 
