@@ -16,7 +16,7 @@ class Controller_Members extends Controller_Base
 	public function action_index()
 	{
 		// 表示用に users 一覧を取得
-		$members = DB::select('id', 'username', 'grade', 'mail', 'created_at', 'updated_at')
+		$members = DB::select('id', 'username', 'grade', 'mail')
 			->from('users')
 			->order_by('id', 'asc')
 			->execute()
