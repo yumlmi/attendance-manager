@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# FuelPHP logs / cache
+fuel/app/logs/*
+!fuel/app/logs/.gitkeep
+fuel/app/cache/*
+!fuel/app/cache/.gitkeep
