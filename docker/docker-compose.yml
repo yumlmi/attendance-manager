@@ -8,6 +8,10 @@ services:
     container_name: fuelphp-app
     ports:
       - "80:80"
+    environment:
+      FUEL_CRYPTO_KEY: ${FUEL_CRYPTO_KEY}
+      FUEL_CRYPTO_IV: ${FUEL_CRYPTO_IV}
+      FUEL_CRYPTO_HMAC: ${FUEL_CRYPTO_HMAC}
     volumes:
       - ../:/var/www/html/my_fuel_project
     networks:

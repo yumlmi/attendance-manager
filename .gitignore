@@ -1,8 +1,14 @@
 # macOS
 .DS_Store
 
+# Local secrets
+.env
+
 # FuelPHP logs / cache
 fuel/app/logs/*
 !fuel/app/logs/.gitkeep
 fuel/app/cache/*
 !fuel/app/cache/.gitkeep
+
+# Secret config (local override)
+fuel/app/config/local/crypt.php
