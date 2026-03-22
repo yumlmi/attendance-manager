@@ -70,7 +70,9 @@ class Controller_Auth extends Controller_Base
 			{
 				// remember-me Cookie属性
 				// secure は設定で制御し、http_only は常に有効化
-				$cookie_secure = $this->is_secure_cookie_required();
+				$require_secure_cookie = $this->is_secure_cookie_required();
+				$is_https_request = $this->is_https_request();
+				$cookie_secure = $require_secure_cookie and $is_https_request;
 				$cookie_http_only = true;
 
 				// View共有用の最小ユーザー情報をSessionへ保存
@@ -91,14 +93,21 @@ class Controller_Auth extends Controller_Base
 				// Cookie値は before() 内で整合性チェックされる
 				if ($remember)
 				{
-					$expire = 60 * 60 * 24 * 14;
-					Cookie::set($this->cookie_user_id_key, $this->encode_remember_cookie_value((string) $user['id']), $expire, null, null, $cookie_secure, $cookie_http_only);
-					Cookie::set($this->cookie_login_key, $this->encode_remember_cookie_value($this->build_login_key($user)), $expire, null, null, $cookie_secure, $cookie_http_only);
+					// secure必須方針でHTTPアクセスの場合はremember-meを発行しない
+					if ($require_secure_cookie and ! $is_https_request)
+					{
+						$this->clear_remember_cookies($cookie_http_only);
+					}
+					else
+					{
+						$expire = 60 * 60 * 24 * 14;
+						Cookie::set($this->cookie_user_id_key, $this->encode_remember_cookie_value((string) $user['id']), $expire, null, null, $cookie_secure, $cookie_http_only);
+						Cookie::set($this->cookie_login_key, $this->encode_remember_cookie_value($this->build_login_key($user)), $expire, null, null, $cookie_secure, $cookie_http_only);
+					}
 				}
 				else
 				{
-					Cookie::delete($this->cookie_user_id_key, null, null, $cookie_secure, $cookie_http_only);
-					Cookie::delete($this->cookie_login_key, null, null, $cookie_secure, $cookie_http_only);
+					$this->clear_remember_cookies($cookie_http_only);
 				}
 
 				Response::redirect('dashboard');
@@ -120,13 +129,11 @@ class Controller_Auth extends Controller_Base
 		}
 
 		// ログイン時と同じCookie属性で削除する
-		$cookie_secure = $this->is_secure_cookie_required();
 		$cookie_http_only = true;
 
 		// Sessionを全体破棄してログイン画面へ戻す
 		Session::destroy();
-		Cookie::delete($this->cookie_user_id_key, null, null, $cookie_secure, $cookie_http_only);
-		Cookie::delete($this->cookie_login_key, null, null, $cookie_secure, $cookie_http_only);
+		$this->clear_remember_cookies($cookie_http_only);
 
 		Response::redirect('login');
 	}

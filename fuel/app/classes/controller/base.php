@@ -96,8 +96,7 @@ class Controller_Base extends Controller
 
 		if (empty($user_id) or empty($login_key))
 		{
-			Cookie::delete($this->cookie_user_id_key);
-			Cookie::delete($this->cookie_login_key);
+			$this->clear_remember_cookies(true);
 			return null;
 		}
 
@@ -110,8 +109,7 @@ class Controller_Base extends Controller
 		// 不正なCookieの場合は削除して復元を中止
 		if (empty($user) or ! hash_equals((string) $this->build_login_key($user), (string) $login_key))
 		{
-			Cookie::delete($this->cookie_user_id_key);
-			Cookie::delete($this->cookie_login_key);
+			$this->clear_remember_cookies(true);
 			return null;
 		}
 
@@ -154,6 +152,19 @@ class Controller_Base extends Controller
 		}
 
 		return (string) $decoded;
+	}
+
+	/**
+	 * remember-me Cookieを削除
+	 *
+	 * secure=true/false の両方で削除して取りこぼしを防ぐ
+	 */
+	protected function clear_remember_cookies($http_only = true)
+	{
+		Cookie::delete($this->cookie_user_id_key, null, null, false, $http_only);
+		Cookie::delete($this->cookie_login_key, null, null, false, $http_only);
+		Cookie::delete($this->cookie_user_id_key, null, null, true, $http_only);
+		Cookie::delete($this->cookie_login_key, null, null, true, $http_only);
 	}
 
 	/**
