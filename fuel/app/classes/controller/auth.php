@@ -41,6 +41,13 @@ class Controller_Auth extends Controller_Base
 
 		if (Input::method() === 'POST')
 		{
+			// ログインCSRF対策: POST時はCSRFトークン検証を必須化
+			if ( ! Security::check_token())
+			{
+				$data['error'] = 'セッションが無効です。もう一度ログインしてください。';
+				return Response::forge(View::forge('auth/login', $data));
+			}
+
 			// 入力値を取得
 			$username = trim((string) Input::post('username', ''));
 			$password = (string) Input::post('password', '');

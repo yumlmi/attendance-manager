@@ -5,6 +5,7 @@
 <?php endif; ?>
 
 <?php echo Form::open('login'); ?>
+	<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
 	<p>
 		<label for="username">ユーザー名</label><br>
 		<?php echo Form::input('username', $username, array('id' => 'username')); ?>
