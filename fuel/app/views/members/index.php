@@ -28,7 +28,7 @@
 					<td><?php echo e($member['mail']); ?></td>
 					<td>
 						<a href="<?php echo Uri::create('members/edit/'.$member_id); ?>">編集</a>
-						<?php echo Form::open('members/delete/'.$member_id, array('method' => 'post', 'style' => 'display:inline; margin-left:8px;')); ?>
+						<?php echo Form::open(array('action' => 'members/delete/'.$member_id, 'method' => 'post', 'style' => 'display:inline; margin-left:8px;')); ?>
 							<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
 							<?php echo Form::submit('delete', '削除', array('onclick' => "return confirm('本当に削除しますか？');")); ?>
 						<?php echo Form::close(); ?>
