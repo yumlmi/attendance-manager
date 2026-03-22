@@ -43,6 +43,8 @@ class Controller_Members extends Controller_Base
 			return false;
 		}
 
+		// Config::get は未ロード設定を自動ロードしないため明示ロードする
+		\Config::load('attendance', true);
 		$allowed_admin_ids = (array) \Config::get('attendance.auth.members_admin_user_ids', array(1));
 		$user_id = (int) $login_user['id'];
 
