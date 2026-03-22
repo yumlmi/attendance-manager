@@ -352,7 +352,11 @@ class Controller_Members extends Controller_Base
 			return;
 		}
 
-		$encoded_context = json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		$json_encode_options = 0;
+		defined('JSON_UNESCAPED_UNICODE') and $json_encode_options |= JSON_UNESCAPED_UNICODE;
+		defined('JSON_UNESCAPED_SLASHES') and $json_encode_options |= JSON_UNESCAPED_SLASHES;
+
+		$encoded_context = json_encode($context, $json_encode_options);
 		if ($encoded_context === false)
 		{
 			$encoded_context = '{"context_encode_error":true}';
