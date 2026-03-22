@@ -46,4 +46,16 @@ return array(
 	'dashboard' => array(
 		'recent_days' => 7,  // 最近N日間の遅刻・欠席を表示
 	),
+
+	/**
+	 * 認証・セキュリティ設定
+	 */
+	'auth' => array(
+		// true の場合、Authルートを HTTPS に強制する
+		'force_https' => false,
+
+		// remember-me Cookie に secure 属性を付与するか
+		// 本番は true を推奨
+		'remember_cookie_secure' => true,
+	),
 );

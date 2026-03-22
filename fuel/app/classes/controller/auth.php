@@ -6,6 +6,24 @@
 class Controller_Auth extends Controller_Base
 {
 	/**
+	 * 認証系ルートの事前処理
+	 *
+	 * 設定で有効な場合は HTTPS を強制する
+	 */
+	public function before()
+	{
+		// force_https が有効でHTTPアクセスされた場合は HTTPS にリダイレクト
+		if ((bool) \Config::get('attendance.auth.force_https', false) and ! $this->is_https_request())
+		{
+			$host = Input::server('HTTP_HOST', 'localhost');
+			$request_uri = Input::server('REQUEST_URI', '/');
+			Response::redirect('https://'.$host.$request_uri);
+		}
+
+		parent::before();
+	}
+
+	/**
 	 * ログイン画面表示・ログイン処理
 	 */
 	public function action_login()
@@ -43,7 +61,8 @@ class Controller_Auth extends Controller_Base
 			}
 			else
 			{
-				// Cookie属性
+				// remember-me Cookie属性
+				// secure は設定で制御し、http_only は常に有効化
 				$cookie_secure = $this->is_secure_cookie_required();
 				$cookie_http_only = true;
 
@@ -87,6 +106,7 @@ class Controller_Auth extends Controller_Base
 	 */
 	public function action_logout()
 	{
+		// ログイン時と同じCookie属性で削除する
 		$cookie_secure = $this->is_secure_cookie_required();
 		$cookie_http_only = true;
 
@@ -120,11 +140,4 @@ class Controller_Auth extends Controller_Base
 		return hash_equals((string) $stored_password, (string) $input_password);
 	}
 
-	/**
-	 * HTTPS運用時のみ secure 属性を付与する
-	 */
-	protected function is_secure_cookie_required()
-	{
-		return Input::protocol() === 'https';
-	}
 }

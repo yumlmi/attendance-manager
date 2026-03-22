@@ -150,4 +150,33 @@ class Controller_Base extends Controller
 
 		return (string) $decoded;
 	}
+
+	/**
+	 * HTTPSリクエストかどうかを判定
+	 */
+	protected function is_https_request()
+	{
+		if (Input::protocol() === 'https')
+		{
+			return true;
+		}
+
+		$forwarded_proto = strtolower((string) Input::server('HTTP_X_FORWARDED_PROTO', ''));
+		if (strpos($forwarded_proto, 'https') !== false)
+		{
+			return true;
+		}
+
+		$https = strtolower((string) Input::server('HTTPS', ''));
+
+		return ($https === 'on' or $https === '1');
+	}
+
+	/**
+	 * remember-me Cookie に secure 属性を付与するか
+	 */
+	protected function is_secure_cookie_required()
+	{
+		return (bool) \Config::get('attendance.auth.remember_cookie_secure', true);
+	}
 }
