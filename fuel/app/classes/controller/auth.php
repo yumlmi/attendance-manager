@@ -32,7 +32,9 @@ class Controller_Auth extends Controller_Base
 				$redirect_url = Uri::create(Uri::string(), array(), Input::get(), true);
 			}
 
-			Response::redirect($redirect_url);
+			// 非GETは307でメソッド/ボディを保持してHTTPSへ転送
+			$redirect_code = Input::method() === 'GET' ? 302 : 307;
+			Response::redirect($redirect_url, 'location', $redirect_code);
 		}
 
 		parent::before();
