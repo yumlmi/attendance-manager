@@ -61,7 +61,16 @@ class Controller_Base extends Controller
 	 */
 	protected function build_login_key(array $user)
 	{
-		return sha1($user['id'].'|'.$user['password']);
+		$secret = \Config::get('crypt.crypto_hmac');
+
+		if (empty($secret))
+		{
+			throw new RuntimeException('Remember-me用の秘密鍵が未設定です。crypt.crypto_hmac を設定してください。');
+		}
+
+		$payload = $user['id'].'|'.$user['password'];
+
+		return hash_hmac('sha256', $payload, $secret);
 	}
 
 	/**
