@@ -51,15 +51,16 @@ return array(
 	 * 認証・セキュリティ設定
 	 */
 	'auth' => array(
-		// true の場合、Authルートを HTTPS に強制する
-		'force_https' => false,
+		// true の場合、Authルートを HTTPS に強制する（推奨デフォルト）
+		// 開発都合で false にする場合でも、HTTP では remember-me Cookie は発行しない実装
+		'force_https' => true,
 
 		// HTTPS強制時のリダイレクト先ベースURL（例: https://example.com）
 		// 未設定時は Uri::create(..., true) で現在URIをHTTPS化して使用
 		'https_redirect_base_url' => '',
 
 		// remember-me Cookie に secure 属性を付与するか
-		// 本番は true を推奨
+		// true の場合、HTTPS 以外では remember-me を発行しない
 		'remember_cookie_secure' => true,
 	),
 );
