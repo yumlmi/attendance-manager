@@ -51,10 +51,22 @@ class Create_attendances
 				'default' => 0,
 			),
 		), array('id'));
+
+		// 外部キー制約: user_id -> users.id（削除時はRESTRICT）
+		\DBUtil::add_foreign_key('attendances', 'user_id', 'users', 'id', 'RESTRICT', 'RESTRICT');
+
+		// 複合インデックス: (user_id, attendance_date) でユーザーごとの日付検索を高速化
+		\DBUtil::create_index('attendances', array('user_id', 'attendance_date'), 'idx_attendances_user_date');
 	}
 
 	public function down()
 	{
+		// 複合インデックスを削除
+		\DBUtil::drop_index('attendances', 'idx_attendances_user_date');
+
+		// 外部キー制約を削除
+		\DBUtil::drop_foreign_key('attendances', array('user_id'));
+
 		// attendances テーブルを削除
 		\DBUtil::drop_table('attendances');
 	}
