@@ -81,11 +81,21 @@ class Controller_Base extends Controller
 	protected function restore_login_user_from_cookie()
 	{
 		// Cookieからユーザー識別情報を取得
-		$user_id = Cookie::get($this->cookie_user_id_key);
-		$login_key = Cookie::get($this->cookie_login_key);
+		$encrypted_user_id = Cookie::get($this->cookie_user_id_key);
+		$encrypted_login_key = Cookie::get($this->cookie_login_key);
+
+		if (empty($encrypted_user_id) or empty($encrypted_login_key))
+		{
+			return null;
+		}
+
+		$user_id = $this->decode_remember_cookie_value($encrypted_user_id);
+		$login_key = $this->decode_remember_cookie_value($encrypted_login_key);
 
 		if (empty($user_id) or empty($login_key))
 		{
+			Cookie::delete($this->cookie_user_id_key);
+			Cookie::delete($this->cookie_login_key);
 			return null;
 		}
 
@@ -114,5 +124,30 @@ class Controller_Base extends Controller
 		Session::set($this->session_user_key, $login_user);
 
 		return $login_user;
+	}
+
+	/**
+	 * Remember-me Cookieに保存する値を暗号化
+	 */
+	protected function encode_remember_cookie_value($value)
+	{
+		return \Crypt::encode((string) $value);
+	}
+
+	/**
+	 * Remember-me Cookieから取得した値を復号
+	 *
+	 * @return string|null
+	 */
+	protected function decode_remember_cookie_value($value)
+	{
+		$decoded = \Crypt::decode((string) $value);
+
+		if ($decoded === false)
+		{
+			return null;
+		}
+
+		return (string) $decoded;
 	}
 }

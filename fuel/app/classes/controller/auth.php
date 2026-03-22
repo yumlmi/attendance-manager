@@ -66,8 +66,8 @@ class Controller_Auth extends Controller_Base
 				if ($remember)
 				{
 					$expire = 60 * 60 * 24 * 14;
-					Cookie::set($this->cookie_user_id_key, (string) $user['id'], $expire, null, null, $cookie_secure, $cookie_http_only);
-					Cookie::set($this->cookie_login_key, $this->build_login_key($user), $expire, null, null, $cookie_secure, $cookie_http_only);
+					Cookie::set($this->cookie_user_id_key, $this->encode_remember_cookie_value((string) $user['id']), $expire, null, null, $cookie_secure, $cookie_http_only);
+					Cookie::set($this->cookie_login_key, $this->encode_remember_cookie_value($this->build_login_key($user)), $expire, null, null, $cookie_secure, $cookie_http_only);
 				}
 				else
 				{
