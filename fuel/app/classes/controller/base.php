@@ -96,7 +96,7 @@ class Controller_Base extends Controller
 			->current();
 
 		// 不正なCookieの場合は削除して復元を中止
-		if (empty($user) or $this->build_login_key($user) !== $login_key)
+		if (empty($user) or ! hash_equals((string) $this->build_login_key($user), (string) $login_key))
 		{
 			Cookie::delete($this->cookie_user_id_key);
 			Cookie::delete($this->cookie_login_key);
