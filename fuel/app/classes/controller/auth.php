@@ -106,6 +106,12 @@ class Controller_Auth extends Controller_Base
 	 */
 	public function action_logout()
 	{
+		// 状態変更は POST + CSRF トークン必須
+		if (Input::method() !== 'POST' or ! Security::check_token())
+		{
+			Response::redirect('dashboard');
+		}
+
 		// ログイン時と同じCookie属性で削除する
 		$cookie_secure = $this->is_secure_cookie_required();
 		$cookie_http_only = true;
