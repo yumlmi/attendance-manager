@@ -111,10 +111,34 @@ class Controller_Members extends Controller_Base
 
 						Response::redirect('members');
 					}
+					catch (PDOException $e)
+					{
+						// DBエラーをログに記録
+						\Log::error('DB error on member create', array(
+							'error' => $e->getMessage(),
+							'code' => $e->getCode(),
+							'username' => $username,
+						));
+
+						// UNIQUE制約違反：SQLSTATE[23000]
+						if ($e->getCode() == '23000')
+						{
+							$data['error'] = 'メンバー作成に失敗しました。ユーザー名またはメールアドレスが重複していないか確認してください。';
+						}
+						else
+						{
+							$data['error'] = 'メンバー作成に失敗しました。システム管理者に連絡してください。';
+						}
+					}
 					catch (Exception $e)
 					{
-						// UNIQUE制約違反などを利用者向けメッセージに変換
-						$data['error'] = 'メンバー作成に失敗しました。ユーザー名またはメールアドレスが重複していないか確認してください。';
+						// 予期しない例外をログに記録
+						\Log::error('Unexpected error on member create', array(
+							'error' => $e->getMessage(),
+							'class' => get_class($e),
+						));
+
+						$data['error'] = 'メンバー作成に失敗しました。システム管理者に連絡してください。';
 					}
 				}
 				else
@@ -234,10 +258,35 @@ class Controller_Members extends Controller_Base
 
 						Response::redirect('members');
 					}
+					catch (PDOException $e)
+					{
+						// DBエラーをログに記録
+						\Log::error('DB error on member edit', array(
+							'error' => $e->getMessage(),
+							'code' => $e->getCode(),
+							'member_id' => $id,
+						));
+
+						// UNIQUE制約違反：SQLSTATE[23000]
+						if ($e->getCode() == '23000')
+						{
+							$data['error'] = 'メンバー更新に失敗しました。ユーザー名またはメールアドレスが重複していないか確認してください。';
+						}
+						else
+						{
+							$data['error'] = 'メンバー更新に失敗しました。システム管理者に連絡してください。';
+						}
+					}
 					catch (Exception $e)
 					{
-						// UNIQUE制約違反などを利用者向けメッセージに変換
-						$data['error'] = 'メンバー更新に失敗しました。ユーザー名またはメールアドレスが重複していないか確認してください。';
+						// 予期しない例外をログに記録
+						\Log::error('Unexpected error on member edit', array(
+							'error' => $e->getMessage(),
+							'class' => get_class($e),
+							'member_id' => $id,
+						));
+
+						$data['error'] = 'メンバー更新に失敗しました。システム管理者に連絡してください。';
 					}
 				}
 				else
