@@ -177,7 +177,10 @@ class Controller_Auth extends Controller_Base
 		// hash('sha256', ...) で生成されたハッシュか確認（64文字の16進数文字列）
 		if (strlen($stored_password) === 64 && ctype_xdigit($stored_password))
 		{
-			return hash_equals($stored_password, hash('sha256', $input_password, false));
+			if (hash_equals($stored_password, hash('sha256', $input_password, false)))
+			{
+				return true;
+			}
 		}
 
 		// レガシー：平文パスワード比較（互換性のため残す）
