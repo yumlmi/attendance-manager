@@ -15,9 +15,24 @@ class Controller_Auth extends Controller_Base
 		// force_https が有効でHTTPアクセスされた場合は HTTPS にリダイレクト
 		if ((bool) \Config::get('attendance.auth.force_https', false) and ! $this->is_https_request())
 		{
-			$host = Input::server('HTTP_HOST', 'localhost');
-			$request_uri = Input::server('REQUEST_URI', '/');
-			Response::redirect('https://'.$host.$request_uri);
+			$redirect_base_url = trim((string) \Config::get('attendance.auth.https_redirect_base_url', ''));
+
+			if ($redirect_base_url !== '')
+			{
+				$path = ltrim((string) Uri::string(), '/');
+				$redirect_url = rtrim($redirect_base_url, '/').'/'.$path;
+
+				if ( ! empty(Input::get()))
+				{
+					$redirect_url .= '?'.Uri::build_query_string(Input::get());
+				}
+			}
+			else
+			{
+				$redirect_url = Uri::create(Uri::string(), array(), Input::get(), true);
+			}
+
+			Response::redirect($redirect_url);
 		}
 
 		parent::before();

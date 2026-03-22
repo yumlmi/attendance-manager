@@ -54,6 +54,10 @@ return array(
 		// true の場合、Authルートを HTTPS に強制する
 		'force_https' => false,
 
+		// HTTPS強制時のリダイレクト先ベースURL（例: https://example.com）
+		// 未設定時は Uri::create(..., true) で現在URIをHTTPS化して使用
+		'https_redirect_base_url' => '',
+
 		// remember-me Cookie に secure 属性を付与するか
 		// 本番は true を推奨
 		'remember_cookie_secure' => true,
