@@ -157,14 +157,19 @@ class Controller_Base extends Controller
 	/**
 	 * remember-me Cookieを削除
 	 *
-	 * secure=true/false の両方で削除して取りこぼしを防ぐ
+	 * 設定上の secure 属性で削除し、互換のため逆属性でも削除して取りこぼしを防ぐ
 	 */
 	protected function clear_remember_cookies($http_only = true)
 	{
-		Cookie::delete($this->cookie_user_id_key, null, null, false, $http_only);
-		Cookie::delete($this->cookie_login_key, null, null, false, $http_only);
-		Cookie::delete($this->cookie_user_id_key, null, null, true, $http_only);
-		Cookie::delete($this->cookie_login_key, null, null, true, $http_only);
+		$secure = $this->is_secure_cookie_required();
+
+		// 現在の方針に合わせた属性で削除
+		Cookie::delete($this->cookie_user_id_key, null, null, $secure, $http_only);
+		Cookie::delete($this->cookie_login_key, null, null, $secure, $http_only);
+
+		// 過去に別属性で発行されたCookieの取りこぼしを防ぐ
+		Cookie::delete($this->cookie_user_id_key, null, null, ! $secure, $http_only);
+		Cookie::delete($this->cookie_login_key, null, null, ! $secure, $http_only);
 	}
 
 	/**
