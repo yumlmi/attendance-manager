@@ -156,8 +156,9 @@ class Controller_Auth extends Controller_Base
 	/**
 	 * パスワード照合
 	 *
-	 * ハッシュ形式が使われている場合は password_verify() を優先し、
-	 * 平文データが残っている場合は互換のため直接比較を行う
+	 * password_hash() で生成されたハッシュ → password_verify() で検証
+	 * hash('sha256', ...) で生成されたハッシュ → 同じ方法で再ハッシュ化して比較
+	 * 平文パスワード → 直接比較（レガシー互換性のため）
 	 */
 	protected function verify_password($input_password, $stored_password)
 	{
@@ -166,12 +167,26 @@ class Controller_Auth extends Controller_Base
 			return false;
 		}
 
-		$info = password_get_info($stored_password);
-		if ( ! empty($info['algo']))
+		// password_* が利用可能な環境では password_hash() 形式を優先して検証
+		if (function_exists('password_get_info') and function_exists('password_verify'))
 		{
-			return password_verify($input_password, $stored_password);
+			$info = password_get_info($stored_password);
+			if ( ! empty($info['algo']))
+			{
+				return password_verify($input_password, $stored_password);
+			}
 		}
 
+		// hash('sha256', ...) で生成されたハッシュか確認（64文字の16進数文字列）
+		if (strlen($stored_password) === 64 && ctype_xdigit($stored_password))
+		{
+			if (hash_equals($stored_password, hash('sha256', $input_password, false)))
+			{
+				return true;
+			}
+		}
+
+		// レガシー：平文パスワード比較（互換性のため残す）
 		return hash_equals((string) $stored_password, (string) $input_password);
 	}
 
