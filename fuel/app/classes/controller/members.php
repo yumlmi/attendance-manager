@@ -76,27 +76,41 @@ class Controller_Members extends Controller_Base
 			{
 				$now = time();
 				// PHP組み込み関数が使える環境ではハッシュ化して保存
-				$hashed_password = function_exists('password_hash')
-					? password_hash($password, PASSWORD_DEFAULT)
-					: $password;
-
-				try
+				$hashed_password = $password;
+				if (function_exists('password_hash'))
 				{
-					DB::insert('users')->set(array(
-						'username' => $username,
-						'password' => $hashed_password,
-						'grade' => $grade,
-						'mail' => $mail,
-						'created_at' => $now,
-						'updated_at' => $now,
-					))->execute();
-
-					Response::redirect('members');
+					$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+					// password_hash() は失敗時に false を返す可能性がある
+					if ($hashed_password === false)
+					{
+						$errors[] = 'パスワードのハッシュ化に失敗しました。別のパスワードをお試しください。';
+					}
 				}
-				catch (Exception $e)
+
+				if (empty($errors))
 				{
-					// UNIQUE制約違反などを利用者向けメッセージに変換
-					$data['error'] = 'メンバー作成に失敗しました。ユーザー名またはメールアドレスが重複していないか確認してください。';
+					try
+					{
+						DB::insert('users')->set(array(
+							'username' => $username,
+							'password' => $hashed_password,
+							'grade' => $grade,
+							'mail' => $mail,
+							'created_at' => $now,
+							'updated_at' => $now,
+						))->execute();
+
+						Response::redirect('members');
+					}
+					catch (Exception $e)
+					{
+						// UNIQUE制約違反などを利用者向けメッセージに変換
+						$data['error'] = 'メンバー作成に失敗しました。ユーザー名またはメールアドレスが重複していないか確認してください。';
+					}
+				}
+				else
+				{
+					$data['error'] = implode(' ', $errors);
 				}
 			}
 			else
@@ -176,24 +190,45 @@ class Controller_Members extends Controller_Base
 				if ($password !== '')
 				{
 					// パスワード入力がある場合のみ更新
-					$update['password'] = function_exists('password_hash')
-						? password_hash($password, PASSWORD_DEFAULT)
-						: $password;
+					if (function_exists('password_hash'))
+					{
+						$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+						// password_hash() は失敗時に false を返す可能性がある
+						if ($hashed_password === false)
+						{
+							$errors[] = 'パスワードのハッシュ化に失敗しました。別のパスワードをお試しください。';
+						}
+						else
+						{
+							$update['password'] = $hashed_password;
+						}
+					}
+					else
+					{
+						$update['password'] = $password;
+					}
 				}
 
-				try
+				if (empty($errors))
 				{
-					DB::update('users')
-						->set($update)
-						->where('id', '=', $id)
-						->execute();
+					try
+					{
+						DB::update('users')
+							->set($update)
+							->where('id', '=', $id)
+							->execute();
 
-					Response::redirect('members');
+						Response::redirect('members');
+					}
+					catch (Exception $e)
+					{
+						// UNIQUE制約違反などを利用者向けメッセージに変換
+						$data['error'] = 'メンバー更新に失敗しました。ユーザー名またはメールアドレスが重複していないか確認してください。';
+					}
 				}
-				catch (Exception $e)
+				else
 				{
-					// UNIQUE制約違反などを利用者向けメッセージに変換
-					$data['error'] = 'メンバー更新に失敗しました。ユーザー名またはメールアドレスが重複していないか確認してください。';
+					$data['error'] = implode(' ', $errors);
 				}
 			}
 			else
