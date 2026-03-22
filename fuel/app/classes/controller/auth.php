@@ -1,0 +1,178 @@
+<?php
+
+/**
+ * ログイン/ログアウトを扱う認証コントローラ
+ */
+class Controller_Auth extends Controller_Base
+{
+	/**
+	 * 認証系ルートの事前処理
+	 *
+	 * 設定で有効な場合は HTTPS を強制する
+	 */
+	public function before()
+	{
+		// force_https が有効でHTTPアクセスされた場合は HTTPS にリダイレクト
+		if ((bool) \Config::get('attendance.auth.force_https', false) and ! $this->is_https_request())
+		{
+			$redirect_base_url = trim((string) \Config::get('attendance.auth.https_redirect_base_url', ''));
+
+			if ($redirect_base_url !== '')
+			{
+				$path = ltrim((string) Uri::string(), '/');
+				$redirect_url = rtrim($redirect_base_url, '/').'/'.$path;
+
+				if ( ! empty(Input::get()))
+				{
+					$redirect_url .= '?'.Uri::build_query_string(Input::get());
+				}
+			}
+			else
+			{
+				$redirect_url = Uri::create(Uri::string(), array(), Input::get(), true);
+			}
+
+			Response::redirect($redirect_url);
+		}
+
+		parent::before();
+	}
+
+	/**
+	 * ログイン画面表示・ログイン処理
+	 */
+	public function action_login()
+	{
+		// 既にログイン済みの場合はダッシュボードへ
+		if (Session::get($this->session_user_key))
+		{
+			Response::redirect('dashboard');
+		}
+
+		$data = array(
+			'error' => '',
+			'username' => '',
+		);
+
+		if (Input::method() === 'POST')
+		{
+			// ログインCSRF対策: POST時はCSRFトークン検証を必須化
+			if ( ! Security::check_token())
+			{
+				$data['error'] = 'セッションが無効です。もう一度ログインしてください。';
+				return Response::forge(View::forge('auth/login', $data));
+			}
+
+			// 入力値を取得
+			$username = trim((string) Input::post('username', ''));
+			$password = (string) Input::post('password', '');
+			$remember = Input::post('remember', '') === '1';
+
+			$data['username'] = $username;
+
+			$user = DB::select('id', 'username', 'password', 'grade', 'mail')
+				->from('users')
+				->where('username', '=', $username)
+				->execute()
+				->current();
+
+			// 認証失敗時はエラーを表示
+			if (empty($user) or ! $this->verify_password($password, $user['password']))
+			{
+				$data['error'] = 'ユーザー名またはパスワードが正しくありません。';
+			}
+			else
+			{
+				// remember-me Cookie属性
+				// secure は設定で制御し、http_only は常に有効化
+				$require_secure_cookie = $this->is_secure_cookie_required();
+				$is_https_request = $this->is_https_request();
+				$cookie_secure = $require_secure_cookie and $is_https_request;
+				$cookie_http_only = true;
+
+				// View共有用の最小ユーザー情報をSessionへ保存
+				$login_user = array(
+					'id' => (int) $user['id'],
+					'username' => $user['username'],
+					'grade' => (int) $user['grade'],
+					'mail' => $user['mail'],
+				);
+
+				Session::set($this->session_user_key, $login_user);
+
+				// ログイン情報設定後にセッションIDを再生成して固定化を防止
+				Session::rotate();
+
+				// 「ログイン状態を保持する」がONならCookieに保存（14日）
+				// OFFの場合は既存Cookieを削除
+				// Cookie値は before() 内で整合性チェックされる
+				if ($remember)
+				{
+					// secure必須方針でHTTPアクセスの場合はremember-meを発行しない
+					if ($require_secure_cookie and ! $is_https_request)
+					{
+						$this->clear_remember_cookies($cookie_http_only);
+					}
+					else
+					{
+						$expire = 60 * 60 * 24 * 14;
+						Cookie::set($this->cookie_user_id_key, $this->encode_remember_cookie_value((string) $user['id']), $expire, null, null, $cookie_secure, $cookie_http_only);
+						Cookie::set($this->cookie_login_key, $this->encode_remember_cookie_value($this->build_login_key($user)), $expire, null, null, $cookie_secure, $cookie_http_only);
+					}
+				}
+				else
+				{
+					$this->clear_remember_cookies($cookie_http_only);
+				}
+
+				Response::redirect('dashboard');
+			}
+		}
+
+		return Response::forge(View::forge('auth/login', $data));
+	}
+
+	/**
+	 * ログアウト処理
+	 */
+	public function action_logout()
+	{
+		// 状態変更は POST + CSRF トークン必須
+		if (Input::method() !== 'POST' or ! Security::check_token())
+		{
+			Response::redirect('dashboard');
+		}
+
+		// ログイン時と同じCookie属性で削除する
+		$cookie_http_only = true;
+
+		// Sessionを全体破棄してログイン画面へ戻す
+		Session::destroy();
+		$this->clear_remember_cookies($cookie_http_only);
+
+		Response::redirect('login');
+	}
+
+	/**
+	 * パスワード照合
+	 *
+	 * ハッシュ形式が使われている場合は password_verify() を優先し、
+	 * 平文データが残っている場合は互換のため直接比較を行う
+	 */
+	protected function verify_password($input_password, $stored_password)
+	{
+		if (empty($stored_password))
+		{
+			return false;
+		}
+
+		$info = password_get_info($stored_password);
+		if ( ! empty($info['algo']))
+		{
+			return password_verify($input_password, $stored_password);
+		}
+
+		return hash_equals((string) $stored_password, (string) $input_password);
+	}
+
+}
