@@ -117,6 +117,8 @@ class Controller_Members extends Controller_Base
 			empty($username) and $errors[] = 'ユーザー名は必須です。';
 			empty($password) and $errors[] = 'パスワードは必須です。';
 			empty($mail) and $errors[] = 'メールアドレスは必須です。';
+			strlen($username) > 50 and $errors[] = 'ユーザー名は50文字以内で入力してください。';
+			strlen($mail) > 255 and $errors[] = 'メールアドレスは255文字以内で入力してください。';
 			! in_array($grade, array(1, 2, 3), true) and $errors[] = '学年は1〜3を指定してください。';
 
 			if (empty($errors))
@@ -237,6 +239,8 @@ class Controller_Members extends Controller_Base
 			$errors = array();
 			empty($username) and $errors[] = 'ユーザー名は必須です。';
 			empty($mail) and $errors[] = 'メールアドレスは必須です。';
+			strlen($username) > 50 and $errors[] = 'ユーザー名は50文字以内で入力してください。';
+			strlen($mail) > 255 and $errors[] = 'メールアドレスは255文字以内で入力してください。';
 			! in_array($grade, array(1, 2, 3), true) and $errors[] = '学年は1〜3を指定してください。';
 
 			if (empty($errors))
