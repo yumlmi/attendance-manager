@@ -318,9 +318,30 @@ class Controller_Members extends Controller_Base
 
 		if ($id > 0)
 		{
-			DB::delete('users')
-				->where('id', '=', $id)
-				->execute();
+			try
+			{
+				DB::delete('users')
+					->where('id', '=', $id)
+					->execute();
+			}
+			catch (PDOException $e)
+			{
+				// DBエラーをログに記録
+				\Log::error('DB error on member delete', array(
+					'error' => $e->getMessage(),
+					'code' => $e->getCode(),
+					'member_id' => $id,
+				));
+			}
+			catch (Exception $e)
+			{
+				// 予期しない例外をログに記録
+				\Log::error('Unexpected error on member delete', array(
+					'error' => $e->getMessage(),
+					'class' => get_class($e),
+					'member_id' => $id,
+				));
+			}
 		}
 
 		Response::redirect('members');
