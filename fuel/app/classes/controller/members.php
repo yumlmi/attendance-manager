@@ -11,6 +11,53 @@ class Controller_Members extends Controller_Base
 	protected $require_login = true;
 
 	/**
+	 * 各アクション実行前の共通処理
+	 */
+	public function before()
+	{
+		parent::before();
+
+		$login_user = Session::get($this->session_user_key, array());
+		if ( ! $this->can_manage_members($login_user))
+		{
+			$this->log_error_with_context('Forbidden members access', array(
+				'user_id' => isset($login_user['id']) ? (int) $login_user['id'] : 0,
+				'username' => isset($login_user['username']) ? (string) $login_user['username'] : '',
+				'uri' => Uri::string(),
+			));
+
+			Response::redirect('dashboard');
+		}
+	}
+
+	/**
+	 * メンバー管理の実行可否を判定
+	 *
+	 * @param array $login_user
+	 * @return bool
+	 */
+	protected function can_manage_members(array $login_user)
+	{
+		if (empty($login_user) or ! isset($login_user['id']))
+		{
+			return false;
+		}
+
+		$allowed_admin_ids = (array) \Config::get('attendance.auth.members_admin_user_ids', array(1));
+		$user_id = (int) $login_user['id'];
+
+		foreach ($allowed_admin_ids as $allowed_id)
+		{
+			if ((int) $allowed_id === $user_id)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * メンバー一覧表示
 	 */
 	public function action_index()

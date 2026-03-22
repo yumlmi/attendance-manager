@@ -62,5 +62,9 @@ return array(
 		// remember-me Cookie に secure 属性を付与するか
 		// true の場合、HTTPS 以外では remember-me を発行しない
 		'remember_cookie_secure' => true,
+
+		// メンバー管理（users CRUD）を実行できる管理者ユーザーID一覧
+		// ここに含まれないログインユーザーは members 配下へアクセス不可
+		'members_admin_user_ids' => array(1),
 	),
 );
