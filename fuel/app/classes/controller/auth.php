@@ -43,9 +43,6 @@ class Controller_Auth extends Controller_Base
 			}
 			else
 			{
-				// ログイン成功時にセッションIDを再生成して固定化を防止
-				Session::rotate();
-
 				// Cookie属性
 				$cookie_secure = $this->is_secure_cookie_required();
 				$cookie_http_only = true;
@@ -59,6 +56,9 @@ class Controller_Auth extends Controller_Base
 				);
 
 				Session::set($this->session_user_key, $login_user);
+
+				// ログイン情報設定後にセッションIDを再生成して固定化を防止
+				Session::rotate();
 
 				// 「ログイン状態を保持する」がONならCookieに保存（14日）
 				// OFFの場合は既存Cookieを削除
