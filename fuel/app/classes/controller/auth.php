@@ -167,11 +167,14 @@ class Controller_Auth extends Controller_Base
 			return false;
 		}
 
-		// password_hash() で生成されたハッシュか確認
-		$info = password_get_info($stored_password);
-		if ( ! empty($info['algo']))
+		// password_* が利用可能な環境では password_hash() 形式を優先して検証
+		if (function_exists('password_get_info') and function_exists('password_verify'))
 		{
-			return password_verify($input_password, $stored_password);
+			$info = password_get_info($stored_password);
+			if ( ! empty($info['algo']))
+			{
+				return password_verify($input_password, $stored_password);
+			}
 		}
 
 		// hash('sha256', ...) で生成されたハッシュか確認（64文字の16進数文字列）
