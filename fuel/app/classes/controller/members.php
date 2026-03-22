@@ -95,7 +95,7 @@ class Controller_Members extends Controller_Base
 					catch (PDOException $e)
 					{
 						// DBエラーをログに記録
-						\Log::error('DB error on member create', array(
+						$this->log_error_with_context('DB error on member create', array(
 							'error' => $e->getMessage(),
 							'code' => $e->getCode(),
 							'username' => $username,
@@ -114,7 +114,7 @@ class Controller_Members extends Controller_Base
 					catch (Exception $e)
 					{
 						// 予期しない例外をログに記録
-						\Log::error('Unexpected error on member create', array(
+						$this->log_error_with_context('Unexpected error on member create', array(
 							'error' => $e->getMessage(),
 							'class' => get_class($e),
 						));
@@ -224,7 +224,7 @@ class Controller_Members extends Controller_Base
 					catch (PDOException $e)
 					{
 						// DBエラーをログに記録
-						\Log::error('DB error on member edit', array(
+						$this->log_error_with_context('DB error on member edit', array(
 							'error' => $e->getMessage(),
 							'code' => $e->getCode(),
 							'member_id' => $id,
@@ -243,7 +243,7 @@ class Controller_Members extends Controller_Base
 					catch (Exception $e)
 					{
 						// 予期しない例外をログに記録
-						\Log::error('Unexpected error on member edit', array(
+						$this->log_error_with_context('Unexpected error on member edit', array(
 							'error' => $e->getMessage(),
 							'class' => get_class($e),
 							'member_id' => $id,
@@ -290,7 +290,7 @@ class Controller_Members extends Controller_Base
 			catch (PDOException $e)
 			{
 				// DBエラーをログに記録
-				\Log::error('DB error on member delete', array(
+				$this->log_error_with_context('DB error on member delete', array(
 					'error' => $e->getMessage(),
 					'code' => $e->getCode(),
 					'member_id' => $id,
@@ -299,7 +299,7 @@ class Controller_Members extends Controller_Base
 			catch (Exception $e)
 			{
 				// 予期しない例外をログに記録
-				\Log::error('Unexpected error on member delete', array(
+				$this->log_error_with_context('Unexpected error on member delete', array(
 					'error' => $e->getMessage(),
 					'class' => get_class($e),
 					'member_id' => $id,
@@ -321,7 +321,7 @@ class Controller_Members extends Controller_Base
 	{
 		if ( ! function_exists('password_hash'))
 		{
-			\Log::error('password_hash is not available on this environment');
+			$this->log_error_with_context('password_hash is not available on this environment');
 			$errors[] = 'パスワード暗号化機能が利用できません。システム管理者に連絡してください。';
 			return null;
 		}
@@ -329,11 +329,35 @@ class Controller_Members extends Controller_Base
 		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
 		if ($hashed_password === false)
 		{
-			\Log::error('password_hash failed when storing member password');
+			$this->log_error_with_context('password_hash failed when storing member password');
 			$errors[] = 'パスワードのハッシュ化に失敗しました。別のパスワードをお試しください。';
 			return null;
 		}
 
 		return $hashed_password;
+	}
+
+	/**
+	 * FuelPHP 1.8 互換でコンテキスト付きエラーログを出力
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 * @return void
+	 */
+	protected function log_error_with_context($message, array $context = array())
+	{
+		if (empty($context))
+		{
+			\Log::error($message);
+			return;
+		}
+
+		$encoded_context = json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		if ($encoded_context === false)
+		{
+			$encoded_context = '{"context_encode_error":true}';
+		}
+
+		\Log::error($message.' context='.$encoded_context);
 	}
 }
