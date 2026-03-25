@@ -1,68 +1,236 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>ダッシュボード | 欠席管理</title>
-    <link rel="stylesheet" href="/assets/css/dashboard.css">
+    <link rel="stylesheet" href="/assets/css/dashboard.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script>
     <script src="/assets/js/dashboard.js"></script>
     <style>
-        /* 仮の簡易スタイル（本番はdashboard.cssで調整） */
-        body { font-family: sans-serif; margin: 0; }
-        .header, .nav, .main, .footer { padding: 16px; }
-        .header { border-bottom: 1px solid #ccc; }
-        .nav { display: flex; gap: 24px; border-bottom: 1px solid #ccc; }
-        .dashboard-title { font-size: 2em; font-weight: bold; }
-        .dashboard-date { font-size: 1.5em; margin-left: 1em; }
-        .dashboard-section { display: flex; gap: 24px; margin-top: 24px; }
-        .dashboard-card { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 24px; background: #fafafa; }
-        .absent-list-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-        .absent-list-table th, .absent-list-table td { border: 1px solid #ccc; padding: 8px; }
-        .absent-list-table th { background: #eee; }
-        .action-bar { background: #000; color: #fff; text-align: center; padding: 8px; margin: 24px 0 0 0; }
+      body {
+        font-family: "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif;
+        margin: 0;
+        background: #f4f6fa;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        border-bottom: 2px solid #222;
+        padding: 24px 32px 12px 32px;
+        background: #fff;
+      }
+      .dashboard-title {
+        font-size: 2.5em;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+      .dashboard-date {
+        font-size: 2em;
+        font-weight: bold;
+        margin-left: 24px;
+        background: #f0f0f0;
+        border-radius: 6px;
+        padding: 4px 18px;
+      }
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        border-bottom: 1.5px solid #222;
+        padding: 12px 32px;
+        background: #fff;
+        font-size: 1.1em;
+      }
+      .nav a {
+        text-decoration: none;
+        color: #222;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 4px;
+        transition: background 0.2s;
+      }
+      .nav a:hover {
+        background: #e0e0e0;
+      }
+      .nav span {
+        font-weight: bold;
+      }
+      .nav button {
+        margin-left: 16px;
+        padding: 6px 18px;
+        font-size: 1em;
+        border-radius: 4px;
+        border: 1px solid #222;
+        background: #fff;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .nav button:hover {
+        background: #222;
+        color: #fff;
+      }
+      .main {
+        padding: 32px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .main > div:first-child {
+        color: #666;
+        margin-bottom: 18px;
+      }
+      .dashboard-section {
+        display: flex;
+        gap: 32px;
+        margin-top: 24px;
+      }
+      .dashboard-card {
+        flex: 1;
+        border: 1.5px solid #bbb;
+        border-radius: 12px;
+        padding: 32px 28px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        min-width: 260px;
+      }
+      .dashboard-card > div:first-child {
+        font-size: 1.1em;
+        color: #444;
+        margin-bottom: 12px;
+      }
+      .dashboard-card > div:last-child {
+        font-size: 2.2em;
+        font-weight: bold;
+        color: #222;
+      }
+      .action-bar {
+        background: #111;
+        color: #fff;
+        text-align: center;
+        padding: 0;
+        margin: 36px 0 0 0;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .action-bar button {
+        width: 100%;
+        background: none;
+        color: #fff;
+        border: none;
+        font-size: 1.2em;
+        font-weight: bold;
+        padding: 16px 0;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .action-bar button:hover {
+        background: #333;
+      }
+      .absent-list-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 18px;
+        font-size: 1.05em;
+        background: #fff;
+      }
+      .absent-list-table th,
+      .absent-list-table td {
+        border: 1px solid #ccc;
+        padding: 12px 10px;
+      }
+      .absent-list-table th {
+        background: #f5f5f5;
+        font-weight: bold;
+      }
+      .absent-list-table tr:nth-child(even) {
+        background: #fafbfc;
+      }
+      .dashboard-card.absent-list {
+        margin-top: 32px;
+      }
+      .dashboard-title {
+        font-size: 2.2em;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      @media (max-width: 800px) {
+        .main {
+          padding: 12px;
+        }
+        .dashboard-section {
+          flex-direction: column;
+          gap: 18px;
+        }
+        .dashboard-card {
+          padding: 18px 8px;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="header">
-        <span class="dashboard-title">ダッシュボード</span>
-        <span class="dashboard-date" data-bind="text: displayDate"></span>
+      <span class="dashboard-title">欠席管理</span>
+      <span class="dashboard-date" data-bind="text: displayDate"></span>
     </div>
     <div class="nav">
-        <a href="#">ダッシュボード</a>
-        <a href="#">部員一覧</a>
-        <a href="#">設定</a>
-        <span style="margin-left:auto;">ユーザー名</span>
-        <button>ログアウト</button>
+      <a href="#">ダッシュボード</a>
+      <a href="/assets/members.html">部員一覧</a>
+      <a href="/assets/settings.html">設定</a>
+      <span style="margin-left: auto">ユーザー名</span>
+      <button>ログアウト</button>
     </div>
     <div class="main">
-        <div>部活動の欠席情報を確認できます</div>
-        <div class="dashboard-section">
-            <div class="dashboard-card">
-                <div data-bind="text: displayDate() + 'の欠席人数'"></div>
-                <div style="font-size:2em; font-weight:bold;" data-bind="text: absentCountText"></div>
-            </div>
-            <div class="dashboard-card">
-                <div data-bind="text: displayMonth() + '月の出席率'"></div>
-                <div style="font-size:2em; font-weight:bold;" data-bind="text: attendanceRateText"></div>
-            </div>
+      <div class="dashboard-title">ダッシュボード</div>
+      <div>部活動の欠席情報を確認できます</div>
+      <div class="dashboard-section">
+        <div class="dashboard-card">
+          <div data-bind="text: displayDate() + 'の欠席人数'"></div>
+          <div data-bind="text: absentCountText"></div>
         </div>
-        <div class="action-bar">
-            <button data-bind="click: registerAbsence">遅刻・欠席登録をする</button>
+        <div class="dashboard-card">
+          <div data-bind="text: displayMonth() + '月の出席率'"></div>
+          <div data-bind="text: attendanceRateText"></div>
         </div>
-        <div class="dashboard-card" style="margin-top:24px;">
-            <div style="font-weight:bold;">欠席者一覧</div>
-            <table class="absent-list-table">
-                <thead>
-                    <tr><th>部員名</th><th>欠席理由</th></tr>
-                </thead>
-                <tbody data-bind="foreach: absentMembers">
-                    <tr>
-                        <td data-bind="text: name"></td>
-                        <td data-bind="text: reason"></td>
-                    </tr>
-                </tbody>
-            </table>
+      </div>
+      <div class="action-bar">
+        <a
+          href="/assets/register.html"
+          style="display: block; text-decoration: none"
+          ><button
+            type="button"
+            style="
+              width: 100%;
+              background: none;
+              color: #fff;
+              border: none;
+              font-size: 1.2em;
+              font-weight: bold;
+              padding: 16px 0;
+              cursor: pointer;
+            "
+          >
+            遅刻・欠席登録をする
+          </button></a
+        >
+      </div>
+      <div class="dashboard-card absent-list">
+        <div style="font-weight: bold; font-size: 1.15em; margin-bottom: 8px">
+          欠席者一覧
         </div>
+        <table class="absent-list-table">
+          <thead>
+            <tr>
+              <th>部員名</th>
+              <th>欠席理由</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach: absentMembers">
+            <tr>
+              <td data-bind="text: name"></td>
+              <td data-bind="text: reason"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-</body>
+  </body>
 </html>

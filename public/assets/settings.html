@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>設定 | 欠席管理</title>
+    <link rel="stylesheet" href="/assets/css/dashboard.css">
+    <style>
+        body { font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif; margin: 0; background: #f4f6fa; }
+        .header { display: flex; align-items: center; border-bottom: 2px solid #222; padding: 24px 32px 12px 32px; background: #fff; }
+        .dashboard-title { font-size: 2em; font-weight: bold; letter-spacing: 2px; }
+        .nav { display: flex; align-items: center; gap: 32px; border-bottom: 1.5px solid #222; padding: 12px 32px; background: #fff; font-size: 1.1em; }
+        .nav a { text-decoration: none; color: #222; font-weight: 500; padding: 4px 10px; border-radius: 4px; transition: background 0.2s; }
+        .nav a:hover { background: #e0e0e0; }
+        .nav span { font-weight: bold; }
+        .nav button { margin-left: 16px; padding: 6px 18px; font-size: 1em; border-radius: 4px; border: 1px solid #222; background: #fff; cursor: pointer; transition: background 0.2s; }
+        .nav button:hover { background: #222; color: #fff; }
+        .main { padding: 32px; max-width: 900px; margin: 0 auto; }
+        .settings-title { font-size: 2.2em; font-weight: bold; margin-bottom: 18px; }
+        .settings-section { background: #fff; border: 1.5px solid #bbb; border-radius: 12px; padding: 32px 28px; margin-bottom: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); max-width: 600px; }
+        .settings-label { font-size: 1.1em; font-weight: bold; margin-bottom: 8px; }
+        .settings-input { width: 100%; padding: 14px 12px; font-size: 1em; border: none; background: #eee; border-radius: 4px; margin-bottom: 24px; }
+        @media (max-width: 800px) {
+            .main { padding: 12px; }
+            .settings-section { padding: 18px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="dashboard-title">欠席管理</span>
+    </div>
+    <div class="nav">
+        <a href="/assets/dashboard.html">ダッシュボード</a>
+        <a href="#">部員一覧</a>
+        <a href="/assets/settings.html">設定</a>
+        <span style="margin-left:auto;">ユーザー名</span>
+        <button>ログアウト</button>
+    </div>
+    <div class="main">
+        <div class="settings-title">設定</div>
+        <form class="settings-section">
+            <div class="settings-label">部員情報</div>
+            <div style="margin-bottom:16px;"></div>
+            <div class="settings-label" style="font-weight:normal;">氏名</div>
+            <input type="text" class="settings-input" placeholder="氏名" readonly>
+            <div class="settings-label" style="font-weight:normal;">学年</div>
+            <input type="text" class="settings-input" placeholder="学年" readonly>
+            <div class="settings-label" style="font-weight:normal;">メールアドレス</div>
+            <input type="email" class="settings-input" placeholder="メールアドレス" readonly>
+        </form>
+    </div>
+</body>
+</html>
