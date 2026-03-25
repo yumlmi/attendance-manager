@@ -43,5 +43,11 @@
             <a href="<?= Uri::create('auth/login') ?>" class="back-link">&lt; ログインページに戻る</a>
         </div>
     </div>
+<?php if (!empty($register_error_message)): ?>
+<script>
+    // サーバー側エラーをコンソールに出力
+    console.error(<?= json_encode($register_error_message) ?>);
+</script>
+<?php endif; ?>
 </body>
 </html>

@@ -7,6 +7,7 @@ return array(
 	// ===== 認証 =====
 	'login'   => 'auth/login',
 	'logout'  => 'auth/logout',
+	'auth/register' => 'auth/register',
 
 	// ===== ダッシュボード =====
 	'dashboard' => 'dashboard/index',
