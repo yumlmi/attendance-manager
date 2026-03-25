@@ -40,18 +40,25 @@ class Controller_Auth extends Controller_Base
 						'password' => $hash,
 						'grade' => 1, // 仮: デフォルト値
 					))->execute();
+					// FuelPHP の insert execute() はドライバによって返却形式が異なるため吸収
+					$insert_id = is_array($user_id) ? (int) reset($user_id) : (int) $user_id;
+
 					// セッションにログイン情報を保存
 					$login_user = array(
-						'id' => (int) $user_id[0],
+						'id' => $insert_id,
 						'username' => $username,
 						'grade' => 1,
 						'mail' => $email,
 					);
 					Session::set($this->session_user_key, $login_user);
 					Log::debug('login_user', Session::get($this->session_user_key));
-					// Session::rotate(); // セッションが消える場合は一時的にコメントアウト
-					// ダッシュボードへリダイレクト
-					Response::redirect('dashboard');
+					// 次のリクエストで確実にログイン状態を引き継ぐためにセッションIDを再生成
+					Session::rotate();
+					// セッションドライバが応答ヘッダを書き換えるため、念のため明示的に書き込み
+					Session::write();
+
+					// ダッシュボードへリダイレクト（処理続行しない）
+					return Response::redirect('dashboard');
 				}
 			}
 		}
