@@ -9,7 +9,7 @@ $action = $is_edit ? 'members/edit/'.$member_id : 'members/create';
 	<p style="color: #c00;"><?php echo e($error); ?></p>
 <?php endif; ?>
 
-<?php echo Form::open($action, array('method' => 'post')); ?>
+<?php echo Form::open(array('action' => $action, 'method' => 'post')); ?>
 	<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
 
 	<p>

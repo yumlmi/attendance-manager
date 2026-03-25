@@ -6,6 +6,66 @@
 class Controller_Auth extends Controller_Base
 {
 	/**
+	 * 新規登録画面表示
+	 */
+	/**
+	 * 新規登録画面表示・登録処理
+	 * POST時はユーザー作成→ダッシュボードへリダイレクト
+	 */
+	public function action_register()
+	{
+		$data = array('error' => '');
+
+		if (Input::method() === 'POST') {
+			// 入力値取得
+			$username = trim((string) Input::post('username', ''));
+			$email = trim((string) Input::post('email', ''));
+			$password = (string) Input::post('password', '');
+
+			// バリデーション（簡易例）
+			if ($username === '' || $email === '' || $password === '') {
+				$data['error'] = '全ての項目を入力してください。';
+			} else {
+				// 既存ユーザー重複チェック
+				$exists = DB::select('id')->from('users')->where('username', '=', $username)->or_where('mail', '=', $email)->execute()->current();
+				if ($exists) {
+					$data['error'] = '同じ氏名またはメールアドレスが既に登録されています。';
+				} else {
+					// パスワードハッシュ化
+					$hash = function_exists('password_hash') ? password_hash($password, PASSWORD_DEFAULT) : hash('sha256', $password);
+					// ユーザー登録
+					$user_id = DB::insert('users')->set(array(
+						'username' => $username,
+						'mail' => $email,
+						'password' => $hash,
+						'grade' => 1, // 仮: デフォルト値
+					))->execute();
+					// セッションにログイン情報を保存
+					$login_user = array(
+						'id' => (int) $user_id[0],
+						'username' => $username,
+						'grade' => 1,
+						'mail' => $email,
+					);
+					Session::set($this->session_user_key, $login_user);
+					Log::debug('login_user', Session::get($this->session_user_key));
+					// Session::rotate(); // セッションが消える場合は一時的にコメントアウト
+					// ダッシュボードへリダイレクト
+					Response::redirect('dashboard');
+				}
+			}
+		}
+
+		$view = View::forge('auth/register', $data);
+		// エラーがあればJSでconsole.error出力用変数をセット
+		if (!empty($data['error'])) {
+			$view->set_global('register_error_message', $data['error'], false);
+		} else {
+			$view->set_global('register_error_message', '', false);
+		}
+		return Response::forge($view);
+	}
+	/**
 	 * 認証系ルートの事前処理
 	 *
 	 * 設定で有効な場合は HTTPS を強制する
