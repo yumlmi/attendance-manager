@@ -15,6 +15,7 @@ class Controller_Dashboard extends Controller_Base
 	 */
 	public function action_index()
 	{
-		return Response::forge(View::forge('dashboard/index'));
+		// ひとまず静的HTML（Knockout.js + API連携）を表示する
+		return Response::redirect('assets/dashboard.html');
 	}
 }
