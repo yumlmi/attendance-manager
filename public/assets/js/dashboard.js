@@ -18,9 +18,7 @@ function DashboardViewModel() {
     var self = this;
 
     self.displayDate = ko.observable('mm/dd');
-    self.displayMonth = ko.observable('mm');
-    self.absentCountText = ko.observable('n/all人');
-    self.attendanceRateText = ko.observable('x%');
+    // 欠席人数・出席率関連は削除
 
     self.absentMembers = ko.observableArray([
         new AbsenceMember({ name: '田中 太郎', reason: 'あああああ' }),
@@ -55,10 +53,7 @@ function DashboardViewModel() {
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 self.displayDate(data.date);
-                self.displayMonth(data.month);
-                self.absentCountText(data.absent_count + '/' + data.all_count + '人');
-                self.attendanceRateText(data.attendance_rate + '%');
-                // APIから取得したデータをAbsenceMemberでラップ
+                // 欠席人数・出席率関連は削除
                 var mapped = data.absent_members.map(function(m) { return new AbsenceMember(m); });
                 self.absentMembers(mapped);
             })
