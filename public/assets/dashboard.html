@@ -214,19 +214,36 @@
       </div>
       <div class="dashboard-card absent-list">
         <div style="font-weight: bold; font-size: 1.15em; margin-bottom: 8px">
-          欠席者一覧
+          遅刻/欠席者一覧
         </div>
         <table class="absent-list-table">
           <thead>
             <tr>
               <th>部員名</th>
-              <th>欠席理由</th>
+              <th>遅刻/欠席理由</th>
             </tr>
           </thead>
           <tbody data-bind="foreach: absentMembers">
             <tr>
               <td data-bind="text: name"></td>
-              <td data-bind="text: reason"></td>
+              <td>
+                  <span data-bind="visible: !editing(), text: reason"></span>
+                  <input
+                    data-bind="visible: editing, value: reason"
+                    style="width: 90%; display:none;"
+                  />
+              </td>
+              <td>
+                <button
+                  data-bind="click: $parent.editMember, visible: !editing()"
+                >
+                  編集
+                </button>
+                <button data-bind="click: $parent.saveMember, visible: editing">
+                  保存
+                </button>
+                <button data-bind="click: $parent.deleteMember">削除</button>
+              </td>
             </tr>
           </tbody>
         </table>
