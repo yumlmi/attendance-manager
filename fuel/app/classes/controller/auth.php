@@ -63,6 +63,8 @@ class Controller_Auth extends Controller_Base
 			}
 		}
 
+		// 所属部活リストを使うため設定ファイルを明示的にロード
+		\Config::load('club_names', true);
 		$view = View::forge('auth/register', $data);
 		// エラーがあればJSでconsole.error出力用変数をセット
 		if (!empty($data['error'])) {
