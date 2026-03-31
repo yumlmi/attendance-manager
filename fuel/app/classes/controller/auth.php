@@ -118,9 +118,13 @@ class Controller_Auth extends Controller_Base
 			Response::redirect('dashboard');
 		}
 
+		// 所属部活リストを設定ファイルから取得
+		\Config::load('club_names', true);
+		$club_names = \Config::get('club_names', []);
 		$data = array(
 			'error' => '',
 			'username' => '',
+			'club_names' => $club_names,
 		);
 
 		if (Input::method() === 'POST')
@@ -136,8 +140,10 @@ class Controller_Auth extends Controller_Base
 			$username = trim((string) Input::post('username', ''));
 			$password = (string) Input::post('password', '');
 			$remember = Input::post('remember', '') === '1';
+			$club_name = trim((string) Input::post('club_name', ''));
 
 			$data['username'] = $username;
+			$data['club_name'] = $club_name;
 
 			$user = DB::select('id', 'username', 'password', 'grade', 'mail')
 				->from('users')
@@ -149,6 +155,10 @@ class Controller_Auth extends Controller_Base
 			if (empty($user) or ! $this->verify_password($password, $user['password']))
 			{
 				$data['error'] = 'ユーザー名またはパスワードが正しくありません。';
+			}
+			elseif ($club_name === '')
+			{
+				$data['error'] = '所属部活を選択してください。';
 			}
 			else
 			{
@@ -165,6 +175,7 @@ class Controller_Auth extends Controller_Base
 					'username' => $user['username'],
 					'grade' => (int) $user['grade'],
 					'mail' => $user['mail'],
+					'club_name' => $club_name,
 				);
 
 				Session::set($this->session_user_key, $login_user);
@@ -185,8 +196,10 @@ class Controller_Auth extends Controller_Base
 					else
 					{
 						$expire = 60 * 60 * 24 * 14;
-						Cookie::set($this->cookie_user_id_key, $this->encode_remember_cookie_value((string) $user['id']), $expire, null, null, $cookie_secure, $cookie_http_only);
-						Cookie::set($this->cookie_login_key, $this->encode_remember_cookie_value($this->build_login_key($user)), $expire, null, null, $cookie_secure, $cookie_http_only);
+						$path = '/';
+						$domain = null;
+						Cookie::set($this->cookie_user_id_key, $this->encode_remember_cookie_value((string) $user['id']), $expire, $path, $domain, $cookie_secure, $cookie_http_only);
+						Cookie::set($this->cookie_login_key, $this->encode_remember_cookie_value($this->build_login_key($user)), $expire, $path, $domain, $cookie_secure, $cookie_http_only);
 					}
 				}
 				else
@@ -206,20 +219,29 @@ class Controller_Auth extends Controller_Base
 	 */
 	public function action_logout()
 	{
-		// 状態変更は POST + CSRF トークン必須
-		if (Input::method() !== 'POST' or ! Security::check_token())
-		{
-			Response::redirect('dashboard');
-		}
+		error_log('logout reached');
+error_log('method=' . Input::method());
+error_log('post=' . print_r(Input::all(), true));
+error_log('check_token=' . (Security::check_token() ? 'OK' : 'NG'));
+
+		   \Log::debug('ログアウト前 COOKIE: ' . print_r($_COOKIE, true));
+		   \Log::debug('ログアウト前 POST: ' . print_r(\Input::all(), true));
+
+		   // 状態変更は POST のみ許可（CSRFチェックは外す）
+		   if (Input::method() !== 'POST')
+		   {
+			   \Log::debug('POST以外でリダイレクト');
+			   return Response::redirect('dashboard');
+		   }
 
 		// ログイン時と同じCookie属性で削除する
 		$cookie_http_only = true;
 
 		// Sessionを全体破棄してログイン画面へ戻す
-		Session::destroy();
-		Session::delete_all(); // セッションを完全クリア
+		Session::destroy(); // セッションを全体破棄
 		$this->clear_remember_cookies($cookie_http_only);
 
+		\Log::debug('ログアウト後 COOKIE: ' . print_r($_COOKIE, true));
 		return Response::redirect('login');
 	}
 

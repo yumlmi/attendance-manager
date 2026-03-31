@@ -21,7 +21,12 @@
       <a href="/assets/members.html">部員一覧</a>
       <a href="/assets/settings.html">設定</a>
       <span style="margin-left: auto">ユーザー名</span>
-      <button id="logout-btn">ログアウト</button>
+      <?php echo Form::open('logout', array('method' => 'post', 'id' =>
+      'logout-form', 'style' => 'display:inline; margin:0;')); ?> <?php echo
+      Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'),
+      Security::fetch_token()); ?> <?php echo Form::submit('logout',
+      'ログアウト', array('style' => 'margin-left:16px;')); ?> <?php echo
+      Form::close(); ?>
     </div>
     <div class="main">
       <div class="dashboard-title">ダッシュボード</div>

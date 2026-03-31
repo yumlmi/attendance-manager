@@ -1,30 +1,91 @@
-<h1>ダッシュボード</h1>
-
-<p>ログイン中: <?php echo e($login_user['username']); ?></p>
-
-<p>
-	<?php echo Form::open('logout', array('method' => 'post', 'id' => 'logout-form')); ?>
-		<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
-		<?php echo Form::submit('logout', 'ログアウト'); ?>
-	<?php echo Form::close(); ?>
-</p>
-
-<!-- Knockout.js をCDNから読み込む -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script>
-<!-- ログアウトボタンsubmit時のデバッグ用スクリプト -->
-<script>
-window.onload = function() {
-  var logoutForm = document.getElementById('logout-form');
-  if (logoutForm) {
-    logoutForm.addEventListener('submit', function(e) {
-      try {
-        console.log('ログアウトボタンが押されました');
-      } catch (err) {
-        console.error('ログアウトsubmit時エラー:', err);
-      }
-    });
-  }
-};
-</script>
-<!-- ダッシュボード用JS -->
-<script src="/assets/js/dashboard.js"></script>
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ダッシュボード | 欠席管理</title>
+    <link rel="stylesheet" href="/assets/css/dashboard.css" />
+    <script src="/assets/js/knockout.js"></script>
+    <script>
+      console.log("after knockout:", typeof ko);
+    </script>
+    <script src="/assets/js/dashboard.js"></script>
+    <!-- CSSはassets/css/dashboard.cssに分離 -->
+  </head>
+  <body>
+    <div class="header">
+      <span class="dashboard-title">欠席管理</span>
+      <span class="dashboard-date" data-bind="text: displayDate"></span>
+    </div>
+    <div class="nav">
+      <a href="#">ダッシュボード</a>
+      <a href="/assets/members.html">部員一覧</a>
+      <a href="/assets/settings.html">設定</a>
+      <span style="margin-left: auto"><?php echo e($login_user['username'] ?? ''); ?></span>
+      <?php echo Form::open(['action' => 'logout', 'method' => 'post', 'id' => 'logout-form', 'style' => 'display:inline; margin:0;']); ?>
+        <?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
+        <?php echo Form::submit('logout', 'ログアウト', array('style' => 'margin-left:16px;')); ?>
+      <?php echo Form::close(); ?>
+    </div>
+    <div class="main">
+      <div class="dashboard-title">ダッシュボード</div>
+      <div>部活動の欠席情報を確認できます</div>
+      <div class="action-bar">
+        <a
+          href="/assets/register.html"
+          style="display: block; text-decoration: none"
+          ><button
+            type="button"
+            style="
+              width: 100%;
+              background: none;
+              color: #fff;
+              border: none;
+              font-size: 1.2em;
+              font-weight: bold;
+              padding: 16px 0;
+              cursor: pointer;
+            "
+          >
+            遅刻・欠席登録をする
+          </button></a
+        >
+      </div>
+      <div class="dashboard-card absent-list">
+        <div style="font-weight: bold; font-size: 1.15em; margin-bottom: 8px">
+          遅刻/欠席者一覧
+        </div>
+        <table class="absent-list-table">
+          <thead>
+            <tr>
+              <th>部員名</th>
+              <th>遅刻/欠席理由</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach: absentMembers">
+            <tr>
+              <td data-bind="text: name"></td>
+              <td>
+                <span data-bind="visible: !editing(), text: reason"></span>
+                <input
+                  data-bind="visible: editing, value: reason"
+                  style="width: 90%; display: none"
+                />
+              </td>
+              <td>
+                <button
+                  data-bind="click: $parent.editMember, visible: !editing()"
+                >
+                  編集
+                </button>
+                <button data-bind="click: $parent.saveMember, visible: editing">
+                  保存
+                </button>
+                <button data-bind="click: $parent.deleteMember">削除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
