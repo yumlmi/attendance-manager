@@ -17,9 +17,9 @@
       <span class="dashboard-date" data-bind="text: displayDate"></span>
     </div>
     <div class="nav">
-      <a href="#">ダッシュボード</a>
-      <a href="/assets/members.html">部員一覧</a>
-      <a href="/assets/settings.html">設定</a>
+      <a href="/dashboard">ダッシュボード</a>
+      <a href="/members">部員一覧</a>
+      <a href="/settings">設定</a>
       <span style="margin-left: auto"><?php echo e($login_user['username'] ?? ''); ?></span>
       <?php echo Form::open(['action' => 'logout', 'method' => 'post', 'id' => 'logout-form', 'style' => 'display:inline; margin:0;']); ?>
         <?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>

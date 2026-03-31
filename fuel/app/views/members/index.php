@@ -1,7 +1,6 @@
 
 <div style="text-align:right;">
 <?php echo Form::open('logout', array('method' => 'post', 'style' => 'display:inline;')); ?>
-	<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
 	<?php echo Form::submit('logout', 'ログアウト'); ?>
 <?php echo Form::close(); ?>
 </div>
