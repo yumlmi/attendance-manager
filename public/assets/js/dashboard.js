@@ -71,4 +71,11 @@ function DashboardViewModel() {
  */
 window.addEventListener('DOMContentLoaded', function() {
     ko.applyBindings(new DashboardViewModel());
+    // ログアウトボタンのクリック処理
+    var logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            window.location.href = '/login';
+        });
+    }
 });

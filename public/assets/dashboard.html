@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <title>ダッシュボード | 欠席管理</title>
     <link rel="stylesheet" href="/assets/css/dashboard.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script>
+    <script src="/assets/js/knockout.js"></script>
+    <script>
+      console.log("after knockout:", typeof ko);
+    </script>
     <script src="/assets/js/dashboard.js"></script>
     <!-- CSSはassets/css/dashboard.cssに分離 -->
   </head>
@@ -18,7 +21,7 @@
       <a href="/assets/members.html">部員一覧</a>
       <a href="/assets/settings.html">設定</a>
       <span style="margin-left: auto">ユーザー名</span>
-      <button>ログアウト</button>
+      <button id="logout-btn">ログアウト</button>
     </div>
     <div class="main">
       <div class="dashboard-title">ダッシュボード</div>
