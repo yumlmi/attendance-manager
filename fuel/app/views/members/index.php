@@ -1,46 +1,55 @@
 
-<div style="text-align:right;">
-<?php echo Form::open('logout', array('method' => 'post', 'style' => 'display:inline;')); ?>
-	<?php echo Form::submit('logout', 'ログアウト'); ?>
-<?php echo Form::close(); ?>
-</div>
-<h1>メンバー一覧</h1>
-
-<p>
-	<a href="<?php echo Uri::create('members/create'); ?>">新規作成</a>
-	| <a href="<?php echo Uri::create('dashboard'); ?>">ダッシュボードへ戻る</a>
-</p>
-
-<?php if (empty($members)): ?>
-	<p>メンバーが登録されていません。</p>
-<?php else: ?>
-	<table border="1" cellpadding="8" cellspacing="0">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>ユーザー名</th>
-				<th>学年</th>
-				<th>メール</th>
-				<th>操作</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php foreach ($members as $member): ?>
-				<?php $member_id = (int) $member['id']; ?>
-				<tr>
-					<td><?php echo $member_id; ?></td>
-					<td><?php echo e($member['username']); ?></td>
-					<td><?php echo (int) $member['grade']; ?></td>
-					<td><?php echo e($member['mail']); ?></td>
-					<td>
-						<a href="<?php echo Uri::create('members/edit/'.$member_id); ?>">編集</a>
-						<?php echo Form::open(array('action' => 'members/delete/'.$member_id, 'method' => 'post', 'style' => 'display:inline; margin-left:8px;')); ?>
-							<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
-							<?php echo Form::submit('delete', '削除', array('onclick' => "return confirm('本当に削除しますか？');")); ?>
-						<?php echo Form::close(); ?>
-					</td>
-				</tr>
-			<?php endforeach; ?>
-		</tbody>
-	</table>
-<?php endif; ?>
+<!doctype html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title>部員一覧 | 欠席管理</title>
+		<link rel="stylesheet" href="/assets/css/dashboard.css" />
+		<link rel="stylesheet" href="/assets/css/members.css" />
+	</head>
+	<body>
+		<div class="header">
+			<span class="dashboard-title">欠席管理</span>
+		</div>
+		<div class="nav">
+			<a href="/dashboard">ダッシュボード</a>
+			<a href="/members">部員一覧</a>
+			<a href="/settings">設定</a>
+			<span style="margin-left: auto"><?php echo e($login_user['username'] ?? ''); ?></span>
+			<?php echo Form::open(['action' => 'logout', 'method' => 'post', 'id' => 'logout-form', 'style' => 'display:inline; margin:0;']); ?>
+				<?php echo Form::submit('logout', 'ログアウト', array('style' => 'margin-left:16px;')); ?>
+			<?php echo Form::close(); ?>
+		</div>
+		<div class="main">
+			<div class="members-title">
+				部員一覧
+				<span style="font-size: 0.9em; color: #666; margin-left: 16px;">
+					所属部活：<?php echo e($login_user['club_name'] ?? '未設定'); ?>
+				</span>
+			</div>
+			<div class="members-desc">
+				登録されている全部員の情報と欠席状況を確認できます
+			</div>
+			<table class="members-table">
+				<thead>
+					<tr>
+						<th>部員名</th>
+						<th>学年</th>
+						<th>欠席回数</th>
+						<th>メールアドレス</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($members as $member): ?>
+					<tr>
+						<td><?php echo e($member['username']); ?></td>
+						<td><?php echo e($member['grade']); ?></td>
+						<td>-</td>
+						<td><?php echo e($member['mail']); ?></td>
+					</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>

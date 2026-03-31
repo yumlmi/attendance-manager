@@ -101,7 +101,7 @@ class Controller_Base extends Controller
 			return null;
 		}
 
-		$user = DB::select('id', 'username', 'password', 'grade', 'mail')
+		$user = DB::select('id', 'username', 'password', 'grade', 'mail', 'club_name')
 			->from('users')
 			->where('id', '=', (int) $user_id)
 			->execute()
@@ -119,6 +119,7 @@ class Controller_Base extends Controller
 			'username' => $user['username'],
 			'grade' => (int) $user['grade'],
 			'mail' => $user['mail'],
+			'club_name' => $user['club_name'],
 		);
 
 		// 正常なCookieであればSessionへ再設定

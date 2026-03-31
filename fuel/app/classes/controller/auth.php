@@ -34,11 +34,13 @@ class Controller_Auth extends Controller_Base
 					// パスワードハッシュ化
 					$hash = function_exists('password_hash') ? password_hash($password, PASSWORD_DEFAULT) : hash('sha256', $password);
 					// ユーザー登録
+					$club_name = trim((string) Input::post('club_name', ''));
 					$user_id = DB::insert('users')->set(array(
 						'username' => $username,
 						'mail' => $email,
 						'password' => $hash,
 						'grade' => 1, // 仮: デフォルト値
+						'club_name' => $club_name,
 					))->execute();
 					// FuelPHP の insert execute() はドライバによって返却形式が異なるため吸収
 					$insert_id = is_array($user_id) ? (int) reset($user_id) : (int) $user_id;
@@ -49,6 +51,7 @@ class Controller_Auth extends Controller_Base
 						'username' => $username,
 						'grade' => 1,
 						'mail' => $email,
+						'club_name' => $club_name,
 					);
 					Session::set($this->session_user_key, $login_user);
 					Log::debug('login_user', Session::get($this->session_user_key));
