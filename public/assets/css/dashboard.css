@@ -15,13 +15,20 @@ body {
   font-weight: bold;
   letter-spacing: 2px;
 }
-.dashboard-date {
-  font-size: 2em;
+.dashboard-date-picker {
+  font-size: 1.08em;
   font-weight: bold;
-  margin-left: 24px;
-  background: #f0f0f0;
-  border-radius: 6px;
-  padding: 4px 18px;
+  color: #222;
+  background: #e0e0e0;
+  border: 1.5px solid #888;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 4px;
+  min-width: 120px;
+}
+input.dashboard-date-picker:focus {
+  outline: 2px solid #222;
+  background: #fffbe7;
 }
 .nav {
   display: flex;

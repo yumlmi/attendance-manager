@@ -16,7 +16,6 @@
   <body>
     <div class="header">
       <span class="dashboard-title">欠席管理</span>
-      <span class="dashboard-date" data-bind="text: displayDate"></span>
     </div>
     <div class="nav">
       <a href="/dashboard">ダッシュボード</a>
@@ -58,8 +57,9 @@
         >
       </div>
       <div class="dashboard-card absent-list">
-        <div style="font-weight: bold; font-size: 1.15em; margin-bottom: 8px">
-          遅刻/欠席者一覧
+        <div style="font-weight: bold; font-size: 1.15em; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
+          <span>遅刻/欠席者一覧</span>
+          <input type="date" class="dashboard-date-picker" data-bind="value: displayDate, event: { change: changeDate }" style="font-size:1em; font-weight:bold; color:#222; background:#e0e0e0; border:1.5px solid #888; border-radius:4px; padding:2px 8px; margin-left:4px; width:auto; min-width:120px;" />
         </div>
         <table class="absent-list-table">
           <thead>

@@ -17,7 +17,17 @@ function AbsenceMember(data) {
 function DashboardViewModel() {
     var self = this;
 
-    self.displayDate = ko.observable('mm/dd');
+    // 日付はYYYY-MM-DD形式で初期化
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    self.displayDate = ko.observable(`${yyyy}-${mm}-${dd}`);
+        // 日付変更時の処理
+        self.changeDate = function(_, e) {
+            // 日付変更で再取得
+            self.fetchDashboardData();
+        };
     // 欠席人数・出席率関連は削除
 
     self.absentMembers = ko.observableArray([
@@ -74,11 +84,13 @@ function DashboardViewModel() {
     };
 
     self.fetchDashboardData = function() {
-        fetch('/api/dashboard')
+        // 日付をクエリに付与
+        const date = self.displayDate();
+        fetch('/api/dashboard?date=' + encodeURIComponent(date))
             .then(function(response) { return response.json(); })
             .then(function(data) {
-                self.displayDate(data.date);
-                // 欠席人数・出席率関連は削除
+                // サーバーから返ってきた日付で上書き（ズレ防止）
+                if (data.date) self.displayDate(data.date);
                 var mapped = data.absent_members.map(function(m) { return new AbsenceMember(m); });
                 self.absentMembers(mapped);
             })
