@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>遅刻・欠席登録 | 欠席管理</title>
+    <script src="/assets/attendance_entry.js"></script>
     <link rel="stylesheet" href="/assets/css/dashboard.css">
     <style>
         body { font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif; margin: 0; background: #f4f6fa; }
@@ -45,6 +46,7 @@
         <div class="form-title">遅刻・欠席登録</div>
         <div class="form-desc">遅刻または欠席情報を入力してください</div>
         <form class="form-section">
+                        <input type="hidden" name="fuel_csrf_token" value="<?php echo isset($fuel_csrf_token) ? htmlspecialchars($fuel_csrf_token) : '' ?>">
             <div class="form-label">遅刻または欠席</div>
             <select class="form-select" required>
                 <option value="">遅刻か欠席か選択してください</option>

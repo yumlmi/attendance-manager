@@ -27,11 +27,16 @@
       <?php echo Form::close(); ?>
     </div>
     <div class="main">
-      <div class="dashboard-title">ダッシュボード</div>
+      <div class="dashboard-title">
+        ダッシュボード
+        <span style="font-size: 0.9em; color: #666; margin-left: 16px;">
+          所属部活：<?php echo e($login_user['club_name'] ?? '未設定'); ?>
+        </span>
+      </div>
       <div>部活動の欠席情報を確認できます</div>
       <div class="action-bar">
         <a
-          href="/assets/register.html"
+          href="/attendance_entry"
           style="display: block; text-decoration: none"
           ><button
             type="button"

@@ -1,3 +1,4 @@
+
 <?php
 return array(
 	// ===== 基本 =====
@@ -32,15 +33,17 @@ return array(
 	// D: 削除
 	'attendances/delete/:id' => 'attendances/delete/$1',
 
+	'attendance_entry' => 'attendanceentry/index',
+
 	// ===== 設定 =====
 	'settings' => 'settings/index',
 
 	// ===== API（AJAX/Knockout.js） =====
 	'api/dashboard/summary'    => 'api/dashboard/summary',
-	'api/attendances/list'     => 'api/attendances/list',
-	'api/attendances/create'   => 'api/attendances/create',
-	'api/attendances/update'   => 'api/attendances/update',
-	'api/attendances/delete'   => 'api/attendances/delete',
+	'api/attendanceentry/list'     => 'api/attendanceentry/list',
+	'api/attendanceentry/create'   => 'api/attendanceentry/create',
+	'api/attendanceentry/update'   => 'api/attendanceentry/update',
+	'api/attendanceentry/delete'   => 'api/attendanceentry/delete',
 
 	// ===== 既存サンプルルート =====
 	'hello(/:name)?' => array('welcome/hello', 'name' => 'hello'),
