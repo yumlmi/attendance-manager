@@ -148,23 +148,21 @@ class Controller_Auth extends Controller_Base
 			$data['username'] = $username;
 			$data['club_name'] = $club_name;
 
-			$user = DB::select('id', 'username', 'password', 'grade', 'mail')
+
+			$user = DB::select('id', 'username', 'password', 'grade', 'mail', 'club_name')
 				->from('users')
 				->where('username', '=', $username)
 				->execute()
 				->current();
 
 			// 認証失敗時はエラーを表示
-			if (empty($user) or ! $this->verify_password($password, $user['password']))
-			{
+			if (empty($user) or ! $this->verify_password($password, $user['password'])) {
 				$data['error'] = 'ユーザー名またはパスワードが正しくありません。';
-			}
-			elseif ($club_name === '')
-			{
+			} elseif ($club_name === '') {
 				$data['error'] = '所属部活を選択してください。';
-			}
-			else
-			{
+			} elseif ($user['club_name'] !== $club_name) {
+				$data['error'] = '選択した部活はこのアカウントに登録されていません。';
+			} else {
 				// remember-me Cookie属性
 				// secure は設定で制御し、http_only は常に有効化
 				$require_secure_cookie = $this->is_secure_cookie_required();
