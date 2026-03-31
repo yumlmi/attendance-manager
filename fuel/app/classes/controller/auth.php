@@ -217,9 +217,10 @@ class Controller_Auth extends Controller_Base
 
 		// Sessionを全体破棄してログイン画面へ戻す
 		Session::destroy();
+		Session::delete_all(); // セッションを完全クリア
 		$this->clear_remember_cookies($cookie_http_only);
 
-		Response::redirect('login');
+		return Response::redirect('login');
 	}
 
 	/**

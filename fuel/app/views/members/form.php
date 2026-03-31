@@ -3,6 +3,13 @@ $is_edit = ($mode === 'edit');
 $action = $is_edit ? 'members/edit/'.$member_id : 'members/create';
 ?>
 
+
+<div style="text-align:right;">
+<?php echo Form::open('logout', array('method' => 'post', 'style' => 'display:inline;')); ?>
+	<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
+	<?php echo Form::submit('logout', 'ログアウト'); ?>
+<?php echo Form::close(); ?>
+</div>
 <h1><?php echo $is_edit ? 'メンバー編集' : 'メンバー作成'; ?></h1>
 
 <?php if ( ! empty($error)): ?>
