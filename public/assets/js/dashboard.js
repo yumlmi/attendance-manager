@@ -30,12 +30,37 @@ function DashboardViewModel() {
         self.absentMembers().forEach(function(m) { m.editing(false); });
         member.editing(true);
     };
-    self.saveMember = function(member) {
-        // 本来はAPIにPOSTする
-        // $.post('/api/attendance/update', { id: member.id, reason: member.reason() }, ...)
-        alert('保存しました: ' + member.name() + ' / ' + member.reason());
-        member.editing(false);
-    };
+        self.saveMember = function(member) {
+            const tokenInput = document.querySelector('[name="fuel_csrf_token"]');
+            const csrfToken = tokenInput ? tokenInput.value : '';
+
+            fetch('/api/attendanceentry/update', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: new URLSearchParams({
+                    fuel_csrf_token: csrfToken,
+                    id: member.id,
+                    reason: member.reason(),
+                    type: member.type || 'absence'
+                }).toString()
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    member.editing(false);
+                } else {
+                    alert(data.error || '保存に失敗しました');
+                }
+            })
+            .catch(function(error) {
+                alert('通信エラー: ' + error);
+            });
+        };
     self.deleteMember = function(member) {
         if (confirm('削除しますか？')) {
             // 本来はAPIにPOSTする

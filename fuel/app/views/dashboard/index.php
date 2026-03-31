@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="/assets/css/dashboard.css" />
     <script src="/assets/js/knockout.js"></script>
     <script>
+      // FuelPHPのCSRFトークンをJSグローバル変数に渡す
+      window.csrf_token = '<?php echo Security::fetch_token(); ?>';
       console.log("after knockout:", typeof ko);
     </script>
     <script src="/assets/js/dashboard.js"></script>
