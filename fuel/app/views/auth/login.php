@@ -32,6 +32,7 @@
 			<div style="color:red; margin-bottom:10px;\"><?= e($error) ?></div>
 		<?php endif; ?>
 		<?= Form::open(['action' => 'auth/login', 'method' => 'post']) ?>
+		<?= Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()) ?>
 			<div class="login-label">氏名</div>
 			<?= Form::input('username', Input::post('username'), ['class' => 'login-input', 'autocomplete' => 'username']) ?>
 			<div class="login-label">パスワード</div>
