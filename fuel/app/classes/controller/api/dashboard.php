@@ -12,10 +12,14 @@ class Controller_Api_Dashboard extends Controller_Rest
 
     public function get_index()
     {
-        // 本日の日付
-        $today = date('Y-m-d');
-        $date = date('m/d');
-        $month = date('m');
+        // クエリで日付指定があればその日付、なければ今日
+        $query_date = 
+            isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date'])
+            ? $_GET['date']
+            : date('Y-m-d');
+        $today = $query_date;
+        $date = date('m/d', strtotime($today));
+        $month = date('m', strtotime($today));
 
         // ログインユーザー取得
         $login_user = Session::get('login_user', []);
@@ -34,7 +38,7 @@ class Controller_Api_Dashboard extends Controller_Rest
                 ->execute()
                 ->count();
 
-            // 本日欠席・遅刻者（同じ部活のみ）
+            // 指定日付の欠席・遅刻者（同じ部活のみ）
             $query = DB::select('a.id', 'u.username', 'a.reason', 'a.type')
                 ->from(['attendances', 'a'])
                 ->join(['users', 'u'], 'INNER')
