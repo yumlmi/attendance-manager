@@ -89,8 +89,7 @@ function DashboardViewModel() {
         fetch('/api/dashboard?date=' + encodeURIComponent(date))
             .then(function(response) { return response.json(); })
             .then(function(data) {
-                // サーバーから返ってきた日付で上書き（ズレ防止）
-                if (data.date) self.displayDate(data.date);
+                // displayDateは上書きしない（ユーザー選択値を優先）
                 var mapped = data.absent_members.map(function(m) { return new AbsenceMember(m); });
                 self.absentMembers(mapped);
             })
