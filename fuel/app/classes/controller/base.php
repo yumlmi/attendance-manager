@@ -58,6 +58,19 @@ class Controller_Base extends Controller
 	}
 
 	/**
+	 * 各アクション実行後の共通処理
+	 */
+	public function after($response)
+	{
+		// クリックジャッキングとMIMEスニッフィング対策
+		$response->set_header('X-Frame-Options', 'SAMEORIGIN');
+		$response->set_header('X-Content-Type-Options', 'nosniff');
+		$response->set_header('Content-Security-Policy', "frame-ancestors 'self'");
+
+		return parent::after($response);
+	}
+
+	/**
 	 * Cookie検証用のログインキーを生成
 	 */
 	protected function build_login_key(array $user)

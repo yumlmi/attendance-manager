@@ -31,6 +31,7 @@
             <div style="color:red; margin-bottom:10px;\"><?= e($error) ?></div>
         <?php endif; ?>
         <?= Form::open(['action' => 'auth/register', 'method' => 'post']) ?>
+            <?= Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()) ?>
             <div class="register-label">氏名</div>
             <?= Form::input('username', Input::post('username', '田中太郎'), ['class' => 'register-input', 'autocomplete' => 'username', 'placeholder' => '田中太郎']) ?>
             <div class="register-label">メールアドレス</div>

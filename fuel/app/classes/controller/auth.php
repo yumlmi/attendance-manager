@@ -17,6 +17,14 @@ class Controller_Auth extends Controller_Base
 		$data = array('error' => '');
 
 		if (Input::method() === 'POST') {
+			if ( ! Security::check_token()) {
+				$data['error'] = 'セッションが無効です。再度お試しください。';
+				\Config::load('club_names', true);
+				$view = View::forge('auth/register', $data);
+				$view->set_global('register_error_message', $data['error'], false);
+				return Response::forge($view);
+			}
+
 			// 入力値取得
 			$username = trim((string) Input::post('username', ''));
 			$email = trim((string) Input::post('email', ''));
@@ -220,20 +228,11 @@ class Controller_Auth extends Controller_Base
 	 */
 	public function action_logout()
 	{
-		error_log('logout reached');
-error_log('method=' . Input::method());
-error_log('post=' . print_r(Input::all(), true));
-error_log('check_token=' . (Security::check_token() ? 'OK' : 'NG'));
-
-		   \Log::debug('ログアウト前 COOKIE: ' . print_r($_COOKIE, true));
-		   \Log::debug('ログアウト前 POST: ' . print_r(\Input::all(), true));
-
-		   // 状態変更は POST のみ許可（CSRFチェックは外す）
-		   if (Input::method() !== 'POST')
-		   {
-			   \Log::debug('POST以外でリダイレクト');
-			   return Response::redirect('dashboard');
-		   }
+		// 状態変更は POST + CSRF トークン必須
+		if (Input::method() !== 'POST' or ! Security::check_token())
+		{
+			return Response::redirect('dashboard');
+		}
 
 		// ログイン時と同じCookie属性で削除する
 		$cookie_http_only = true;
@@ -242,7 +241,6 @@ error_log('check_token=' . (Security::check_token() ? 'OK' : 'NG'));
 		Session::destroy(); // セッションを全体破棄
 		$this->clear_remember_cookies($cookie_http_only);
 
-		\Log::debug('ログアウト後 COOKIE: ' . print_r($_COOKIE, true));
 		return Response::redirect('login');
 	}
 

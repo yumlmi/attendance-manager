@@ -112,6 +112,7 @@
 			<a href="/settings">設定</a>
 			<span style="margin-left: auto"><?php echo e($login_user['username'] ?? ''); ?></span>
 			<?php echo Form::open(['action' => 'logout', 'method' => 'post', 'id' => 'logout-form', 'style' => 'display:inline; margin:0;']); ?>
+				<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
 				<?php echo Form::submit('logout', 'ログアウト', array('style' => 'margin-left:16px;')); ?>
 			<?php echo Form::close(); ?>
 		</div>
