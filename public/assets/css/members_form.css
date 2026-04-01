@@ -1,0 +1,9 @@
+.members-form-top {
+  text-align: right;
+}
+.members-form-error {
+  color: #c00;
+}
+.members-inline-form {
+  display: inline;
+}

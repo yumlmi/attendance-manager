@@ -15,16 +15,16 @@
 			<a href="/dashboard">ダッシュボード</a>
 			<a href="/members">部員一覧</a>
 			<a href="/settings">設定</a>
-			<span style="margin-left: auto"><?php echo e($login_user['username'] ?? ''); ?></span>
-			<?php echo Form::open(['action' => 'logout', 'method' => 'post', 'id' => 'logout-form', 'style' => 'display:inline; margin:0;']); ?>
+			<span class="nav-user"><?php echo e($login_user['username'] ?? ''); ?></span>
+			<?php echo Form::open(['action' => 'logout', 'method' => 'post', 'id' => 'logout-form', 'class' => 'logout-form']); ?>
 				<?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
-				<?php echo Form::submit('logout', 'ログアウト', array('style' => 'margin-left:16px;')); ?>
+				<?php echo Form::submit('logout', 'ログアウト', array('class' => 'logout-button')); ?>
 			<?php echo Form::close(); ?>
 		</div>
 		<div class="main">
 			<div class="members-title">
 				部員一覧
-				<span style="font-size: 0.9em; color: #666; margin-left: 16px;">
+				<span class="club-name">
 					所属部活：<?php echo e($login_user['club_name'] ?? '未設定'); ?>
 				</span>
 			</div>

@@ -1,0 +1,62 @@
+.settings-title {
+  font-size: 2.2em;
+  font-weight: bold;
+  margin-bottom: 18px;
+}
+.settings-section {
+  background: #fff;
+  border: 1.5px solid #bbb;
+  border-radius: 12px;
+  padding: 32px 28px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  max-width: 600px;
+}
+.settings-label {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.settings-label-normal {
+  font-weight: normal;
+}
+.settings-input {
+  width: 100%;
+  padding: 14px 12px;
+  font-size: 1em;
+  border: none;
+  background: #eee;
+  border-radius: 4px;
+  margin-bottom: 24px;
+}
+.settings-message {
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  max-width: 600px;
+}
+.settings-message-success {
+  background: #e8f7ee;
+  border: 1px solid #63b37f;
+  color: #1f6b3b;
+}
+.settings-message-error {
+  background: #fdeeee;
+  border: 1px solid #d27a7a;
+  color: #8f2f2f;
+}
+.settings-spacer {
+  margin-bottom: 16px;
+}
+.settings-save-button {
+  background: #222;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+}
+@media (max-width: 800px) {
+  .settings-section {
+    padding: 18px 8px;
+  }
+}

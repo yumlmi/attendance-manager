@@ -21,45 +21,29 @@
       <a href="/dashboard">ダッシュボード</a>
       <a href="/members">部員一覧</a>
       <a href="/settings">設定</a>
-      <span style="margin-left: auto"><?php echo e($login_user['username'] ?? ''); ?></span>
-      <?php echo Form::open(['action' => 'logout', 'method' => 'post', 'id' => 'logout-form', 'style' => 'display:inline; margin:0;']); ?>
+      <span class="nav-user"><?php echo e($login_user['username'] ?? ''); ?></span>
+      <?php echo Form::open(['action' => 'logout', 'method' => 'post', 'id' => 'logout-form', 'class' => 'logout-form']); ?>
         <?php echo Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'), Security::fetch_token()); ?>
-        <?php echo Form::submit('logout', 'ログアウト', array('style' => 'margin-left:16px;')); ?>
+        <?php echo Form::submit('logout', 'ログアウト', array('class' => 'logout-button')); ?>
       <?php echo Form::close(); ?>
     </div>
     <div class="main">
       <div class="dashboard-title">
         ダッシュボード
-        <span style="font-size: 0.9em; color: #666; margin-left: 16px;">
+        <span class="club-name">
           所属部活：<?php echo e($login_user['club_name'] ?? '未設定'); ?>
         </span>
       </div>
       <div>部活動の欠席情報を確認できます</div>
       <div class="action-bar">
-        <a
-          href="/attendance_entry"
-          style="display: block; text-decoration: none"
-          ><button
-            type="button"
-            style="
-              width: 100%;
-              background: none;
-              color: #fff;
-              border: none;
-              font-size: 1.2em;
-              font-weight: bold;
-              padding: 16px 0;
-              cursor: pointer;
-            "
-          >
+        <a href="/attendance_entry" class="action-link"><button type="button" class="action-button">
             遅刻・欠席登録をする
-          </button></a
-        >
+          </button></a>
       </div>
       <div class="dashboard-card absent-list">
-        <div style="font-weight: bold; font-size: 1.15em; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
+        <div class="absent-list-header">
           <span>遅刻/欠席者一覧</span>
-          <input type="date" class="dashboard-date-picker" data-bind="value: displayDate, event: { change: changeDate }" style="font-size:1em; font-weight:bold; color:#222; background:#e0e0e0; border:1.5px solid #888; border-radius:4px; padding:2px 8px; margin-left:4px; width:auto; min-width:120px;" />
+          <input type="date" class="dashboard-date-picker" data-bind="value: displayDate, event: { change: changeDate }" />
         </div>
         <table class="absent-list-table">
           <thead>
@@ -75,7 +59,7 @@
                 <span data-bind="visible: !editing(), text: reason"></span>
                 <input
                   data-bind="visible: editing, value: reason"
-                  style="width: 90%; display: none"
+                  class="reason-input"
                 />
               </td>
               <td>
