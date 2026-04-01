@@ -16,18 +16,7 @@ class Controller_Members extends Controller_Base
 	public function before()
 	{
 		parent::before();
-
-		$login_user = Session::get($this->session_user_key, array());
-		if ( ! $this->can_manage_members($login_user))
-		{
-			$this->log_error_with_context('Forbidden members access', array(
-				'user_id' => isset($login_user['id']) ? (int) $login_user['id'] : 0,
-				'username' => isset($login_user['username']) ? (string) $login_user['username'] : '',
-				'uri' => Uri::string(),
-			));
-
-			Response::redirect('dashboard');
-		}
+		// 全ユーザーが閲覧可能
 	}
 
 	/**
@@ -64,12 +53,21 @@ class Controller_Members extends Controller_Base
 	 */
 	public function action_index()
 	{
-		// 表示用に users 一覧を取得
-		$members = DB::select('id', 'username', 'grade', 'mail')
-			->from('users')
-			->order_by('id', 'asc')
-			->execute()
-			->as_array();
+		// ログインユーザーの所属部活名で絞り込む
+		$login_user = \Session::get($this->session_user_key, array());
+		$club_name = isset($login_user['club_name']) ? $login_user['club_name'] : null;
+
+		if ($club_name) {
+			$members = DB::select('id', 'username', 'grade', 'mail', 'club_name')
+				->from('users')
+				->where('club_name', '=', $club_name)
+				->order_by('id', 'asc')
+				->execute()
+				->as_array();
+		} else {
+			// 所属部活未設定の場合は空配列
+			$members = array();
+		}
 
 		return Response::forge(View::forge('members/index', array(
 			'members' => $members,

@@ -30,6 +30,7 @@ class Controller_Base extends Controller
 	 */
 	public function before()
 	{
+		\Config::load('log', true); // log.phpを明示的に読み込む
 		parent::before();
 
 		// セッションからログインユーザー情報を取得し、全Viewで参照できるようにする
@@ -100,7 +101,7 @@ class Controller_Base extends Controller
 			return null;
 		}
 
-		$user = DB::select('id', 'username', 'password', 'grade', 'mail')
+		$user = DB::select('id', 'username', 'password', 'grade', 'mail', 'club_name')
 			->from('users')
 			->where('id', '=', (int) $user_id)
 			->execute()
@@ -118,6 +119,7 @@ class Controller_Base extends Controller
 			'username' => $user['username'],
 			'grade' => (int) $user['grade'],
 			'mail' => $user['mail'],
+			'club_name' => $user['club_name'],
 		);
 
 		// 正常なCookieであればSessionへ再設定
@@ -162,14 +164,16 @@ class Controller_Base extends Controller
 	protected function clear_remember_cookies($http_only = true)
 	{
 		$secure = $this->is_secure_cookie_required();
+		$path = '/';
+		$domain = null;
 
 		// 現在の方針に合わせた属性で削除
-		Cookie::delete($this->cookie_user_id_key, null, null, $secure, $http_only);
-		Cookie::delete($this->cookie_login_key, null, null, $secure, $http_only);
+		Cookie::delete($this->cookie_user_id_key, $path, $domain, $secure, $http_only);
+		Cookie::delete($this->cookie_login_key, $path, $domain, $secure, $http_only);
 
 		// 過去に別属性で発行されたCookieの取りこぼしを防ぐ
-		Cookie::delete($this->cookie_user_id_key, null, null, ! $secure, $http_only);
-		Cookie::delete($this->cookie_login_key, null, null, ! $secure, $http_only);
+		Cookie::delete($this->cookie_user_id_key, $path, $domain, !$secure, $http_only);
+		Cookie::delete($this->cookie_login_key, $path, $domain, !$secure, $http_only);
 	}
 
 	/**

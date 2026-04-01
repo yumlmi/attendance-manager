@@ -34,11 +34,13 @@ class Controller_Auth extends Controller_Base
 					// パスワードハッシュ化
 					$hash = function_exists('password_hash') ? password_hash($password, PASSWORD_DEFAULT) : hash('sha256', $password);
 					// ユーザー登録
+					$club_name = trim((string) Input::post('club_name', ''));
 					$user_id = DB::insert('users')->set(array(
 						'username' => $username,
 						'mail' => $email,
 						'password' => $hash,
 						'grade' => 1, // 仮: デフォルト値
+						'club_name' => $club_name,
 					))->execute();
 					// FuelPHP の insert execute() はドライバによって返却形式が異なるため吸収
 					$insert_id = is_array($user_id) ? (int) reset($user_id) : (int) $user_id;
@@ -49,6 +51,7 @@ class Controller_Auth extends Controller_Base
 						'username' => $username,
 						'grade' => 1,
 						'mail' => $email,
+						'club_name' => $club_name,
 					);
 					Session::set($this->session_user_key, $login_user);
 					Log::debug('login_user', Session::get($this->session_user_key));
@@ -63,6 +66,8 @@ class Controller_Auth extends Controller_Base
 			}
 		}
 
+		// 所属部活リストを使うため設定ファイルを明示的にロード
+		\Config::load('club_names', true);
 		$view = View::forge('auth/register', $data);
 		// エラーがあればJSでconsole.error出力用変数をセット
 		if (!empty($data['error'])) {
@@ -116,9 +121,13 @@ class Controller_Auth extends Controller_Base
 			Response::redirect('dashboard');
 		}
 
+		// 所属部活リストを設定ファイルから取得
+		\Config::load('club_names', true);
+		$club_names = \Config::get('club_names', []);
 		$data = array(
 			'error' => '',
 			'username' => '',
+			'club_names' => $club_names,
 		);
 
 		if (Input::method() === 'POST')
@@ -134,22 +143,26 @@ class Controller_Auth extends Controller_Base
 			$username = trim((string) Input::post('username', ''));
 			$password = (string) Input::post('password', '');
 			$remember = Input::post('remember', '') === '1';
+			$club_name = trim((string) Input::post('club_name', ''));
 
 			$data['username'] = $username;
+			$data['club_name'] = $club_name;
 
-			$user = DB::select('id', 'username', 'password', 'grade', 'mail')
+
+			$user = DB::select('id', 'username', 'password', 'grade', 'mail', 'club_name')
 				->from('users')
 				->where('username', '=', $username)
 				->execute()
 				->current();
 
 			// 認証失敗時はエラーを表示
-			if (empty($user) or ! $this->verify_password($password, $user['password']))
-			{
+			if (empty($user) or ! $this->verify_password($password, $user['password'])) {
 				$data['error'] = 'ユーザー名またはパスワードが正しくありません。';
-			}
-			else
-			{
+			} elseif ($club_name === '') {
+				$data['error'] = '所属部活を選択してください。';
+			} elseif ($user['club_name'] !== $club_name) {
+				$data['error'] = '選択した部活はこのアカウントに登録されていません。';
+			} else {
 				// remember-me Cookie属性
 				// secure は設定で制御し、http_only は常に有効化
 				$require_secure_cookie = $this->is_secure_cookie_required();
@@ -163,6 +176,7 @@ class Controller_Auth extends Controller_Base
 					'username' => $user['username'],
 					'grade' => (int) $user['grade'],
 					'mail' => $user['mail'],
+					'club_name' => $club_name,
 				);
 
 				Session::set($this->session_user_key, $login_user);
@@ -183,8 +197,10 @@ class Controller_Auth extends Controller_Base
 					else
 					{
 						$expire = 60 * 60 * 24 * 14;
-						Cookie::set($this->cookie_user_id_key, $this->encode_remember_cookie_value((string) $user['id']), $expire, null, null, $cookie_secure, $cookie_http_only);
-						Cookie::set($this->cookie_login_key, $this->encode_remember_cookie_value($this->build_login_key($user)), $expire, null, null, $cookie_secure, $cookie_http_only);
+						$path = '/';
+						$domain = null;
+						Cookie::set($this->cookie_user_id_key, $this->encode_remember_cookie_value((string) $user['id']), $expire, $path, $domain, $cookie_secure, $cookie_http_only);
+						Cookie::set($this->cookie_login_key, $this->encode_remember_cookie_value($this->build_login_key($user)), $expire, $path, $domain, $cookie_secure, $cookie_http_only);
 					}
 				}
 				else
@@ -204,20 +220,30 @@ class Controller_Auth extends Controller_Base
 	 */
 	public function action_logout()
 	{
-		// 状態変更は POST + CSRF トークン必須
-		if (Input::method() !== 'POST' or ! Security::check_token())
-		{
-			Response::redirect('dashboard');
-		}
+		error_log('logout reached');
+error_log('method=' . Input::method());
+error_log('post=' . print_r(Input::all(), true));
+error_log('check_token=' . (Security::check_token() ? 'OK' : 'NG'));
+
+		   \Log::debug('ログアウト前 COOKIE: ' . print_r($_COOKIE, true));
+		   \Log::debug('ログアウト前 POST: ' . print_r(\Input::all(), true));
+
+		   // 状態変更は POST のみ許可（CSRFチェックは外す）
+		   if (Input::method() !== 'POST')
+		   {
+			   \Log::debug('POST以外でリダイレクト');
+			   return Response::redirect('dashboard');
+		   }
 
 		// ログイン時と同じCookie属性で削除する
 		$cookie_http_only = true;
 
 		// Sessionを全体破棄してログイン画面へ戻す
-		Session::destroy();
+		Session::destroy(); // セッションを全体破棄
 		$this->clear_remember_cookies($cookie_http_only);
 
-		Response::redirect('login');
+		\Log::debug('ログアウト後 COOKIE: ' . print_r($_COOKIE, true));
+		return Response::redirect('login');
 	}
 
 	/**

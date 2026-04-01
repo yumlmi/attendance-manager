@@ -30,6 +30,11 @@
 	</style>
 </head>
 <body>
+		<div style="text-align:right;">
+		<?php echo Form::open('logout', array('method' => 'post', 'style' => 'display:inline;')); ?>
+			<?php echo Form::submit('logout', 'ログアウト'); ?>
+		<?php echo Form::close(); ?>
+		</div>
 	<header>
 		<div class="container">
 			<div id="logo"></div>

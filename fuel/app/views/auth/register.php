@@ -37,6 +37,16 @@
             <?= Form::input('email', Input::post('email', 'example@example.com'), ['class' => 'register-input', 'autocomplete' => 'email', 'placeholder' => 'example@example.com']) ?>
             <div class="register-label">パスワード</div>
             <?= Form::password('password', '', ['class' => 'register-input', 'autocomplete' => 'new-password', 'placeholder' => '......']) ?>
+
+            <div class="register-label">所属部活</div>
+            <?php $clubs = Config::get('club_names', []); ?>
+            <select name="club_name" class="register-input">
+                <option value="">選択してください</option>
+                <?php foreach ($clubs as $club): ?>
+                    <option value="<?= e($club) ?>" <?= Input::post('club_name') === $club ? 'selected' : '' ?>><?= e($club) ?></option>
+                <?php endforeach; ?>
+            </select>
+
             <?= Form::submit('register', 'アカウントを作成', ['class' => 'register-btn']) ?>
         <?= Form::close() ?>
         <div style="margin-top:30px; color:#555;">

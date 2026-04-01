@@ -1,68 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>ダッシュボード | 欠席管理</title>
-    <link rel="stylesheet" href="/assets/css/dashboard.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script>
+    <link rel="stylesheet" href="/assets/css/dashboard.css" />
+    <script src="/assets/js/knockout.js"></script>
+    <script>
+      console.log("after knockout:", typeof ko);
+    </script>
     <script src="/assets/js/dashboard.js"></script>
-    <style>
-        /* 仮の簡易スタイル（本番はdashboard.cssで調整） */
-        body { font-family: sans-serif; margin: 0; }
-        .header, .nav, .main, .footer { padding: 16px; }
-        .header { border-bottom: 1px solid #ccc; }
-        .nav { display: flex; gap: 24px; border-bottom: 1px solid #ccc; }
-        .dashboard-title { font-size: 2em; font-weight: bold; }
-        .dashboard-date { font-size: 1.5em; margin-left: 1em; }
-        .dashboard-section { display: flex; gap: 24px; margin-top: 24px; }
-        .dashboard-card { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 24px; background: #fafafa; }
-        .absent-list-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-        .absent-list-table th, .absent-list-table td { border: 1px solid #ccc; padding: 8px; }
-        .absent-list-table th { background: #eee; }
-        .action-bar { background: #000; color: #fff; text-align: center; padding: 8px; margin: 24px 0 0 0; }
-    </style>
-</head>
-<body>
+    <!-- CSSはassets/css/dashboard.cssに分離 -->
+  </head>
+  <body>
     <div class="header">
-        <span class="dashboard-title">ダッシュボード</span>
-        <span class="dashboard-date" data-bind="text: displayDate"></span>
+      <span class="dashboard-title">欠席管理</span>
+      <span class="dashboard-date" data-bind="text: displayDate"></span>
     </div>
     <div class="nav">
-        <a href="#">ダッシュボード</a>
-        <a href="#">部員一覧</a>
-        <a href="#">設定</a>
-        <span style="margin-left:auto;">ユーザー名</span>
-        <button>ログアウト</button>
+      <a href="#">ダッシュボード</a>
+      <a href="/members">部員一覧</a>
+      <a href="/assets/settings.html">設定</a>
+      <span style="margin-left: auto">ユーザー名</span>
+      <?php echo Form::open('logout', array('method' => 'post', 'id' =>
+      'logout-form', 'style' => 'display:inline; margin:0;')); ?> <?php echo
+      Form::hidden(Config::get('security.csrf_token_key', 'fuel_csrf_token'),
+      Security::fetch_token()); ?> <?php echo Form::submit('logout',
+      'ログアウト', array('style' => 'margin-left:16px;')); ?> <?php echo
+      Form::close(); ?>
     </div>
     <div class="main">
-        <div>部活動の欠席情報を確認できます</div>
-        <div class="dashboard-section">
-            <div class="dashboard-card">
-                <div data-bind="text: displayDate() + 'の欠席人数'"></div>
-                <div style="font-size:2em; font-weight:bold;" data-bind="text: absentCountText"></div>
-            </div>
-            <div class="dashboard-card">
-                <div data-bind="text: displayMonth() + '月の出席率'"></div>
-                <div style="font-size:2em; font-weight:bold;" data-bind="text: attendanceRateText"></div>
-            </div>
+      <div class="dashboard-title">ダッシュボード</div>
+      <div>部活動の欠席情報を確認できます</div>
+      <div class="action-bar">
+        <a
+          href="/assets/attendance_entry.html"
+          style="display: block; text-decoration: none"
+          ><button
+            type="button"
+            style="
+              width: 100%;
+              background: none;
+              color: #fff;
+              border: none;
+              font-size: 1.2em;
+              font-weight: bold;
+              padding: 16px 0;
+              cursor: pointer;
+            "
+          >
+            遅刻・欠席登録をする
+          </button></a
+        >
+      </div>
+      <div class="dashboard-card absent-list">
+        <div style="font-weight: bold; font-size: 1.15em; margin-bottom: 8px">
+          遅刻/欠席者一覧
         </div>
-        <div class="action-bar">
-            <button data-bind="click: registerAbsence">遅刻・欠席登録をする</button>
-        </div>
-        <div class="dashboard-card" style="margin-top:24px;">
-            <div style="font-weight:bold;">欠席者一覧</div>
-            <table class="absent-list-table">
-                <thead>
-                    <tr><th>部員名</th><th>欠席理由</th></tr>
-                </thead>
-                <tbody data-bind="foreach: absentMembers">
-                    <tr>
-                        <td data-bind="text: name"></td>
-                        <td data-bind="text: reason"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <table class="absent-list-table">
+          <thead>
+            <tr>
+              <th>部員名</th>
+              <th>遅刻/欠席理由</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach: absentMembers">
+            <tr>
+              <td data-bind="text: name"></td>
+              <td>
+                <span data-bind="visible: !editing(), text: reason"></span>
+                <input
+                  data-bind="visible: editing, value: reason"
+                  style="width: 90%; display: none"
+                />
+              </td>
+              <td>
+                <button
+                  data-bind="click: $parent.editMember, visible: !editing()"
+                >
+                  編集
+                </button>
+                <button data-bind="click: $parent.saveMember, visible: editing">
+                  保存
+                </button>
+                <button data-bind="click: $parent.deleteMember">削除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-</body>
+  </body>
 </html>
