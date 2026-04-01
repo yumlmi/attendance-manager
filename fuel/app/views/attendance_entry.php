@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>遅刻・欠席登録 | 欠席管理</title>
     <link rel="stylesheet" href="/assets/css/dashboard.css" />
+    <link rel="stylesheet" href="/assets/css/attendance_entry.css" />
 </head>
 <body>
     <div class="header">
@@ -13,42 +14,42 @@
         <a href="/dashboard">ダッシュボード</a>
         <a href="/members">部員一覧</a>
         <a href="/settings">設定</a>
-        <span style="margin-left:auto;">
+        <span class="nav-user">
             <?php echo htmlspecialchars($login_user['username'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
         </span>
-        <form action="/logout" method="post" id="logout-form" style="display:inline; margin:0;">
+        <form action="/logout" method="post" id="logout-form" class="logout-form">
             <input type="hidden" name="fuel_csrf_token" value="<?php echo Security::fetch_token(); ?>">
-            <input type="submit" value="ログアウト" style="margin-left:16px;">
+            <input type="submit" value="ログアウト" class="logout-button">
         </form>
     </div>
-    <div class="main" style="display: flex; justify-content: center; align-items: flex-start; min-height: 70vh;">
-        <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 40px 32px 32px 32px; max-width: 540px; width: 100%; margin-top: 32px;">
+    <div class="main attendance-main">
+        <div class="attendance-card">
             <?php if (!empty($error)): ?>
-                <div style="color: #d32f2f; font-weight: bold; margin-bottom: 20px; font-size: 1.1em;">
+                <div class="attendance-error">
                     <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
             <?php endif; ?>
-            <div style="font-size: 2em; font-weight: bold; margin-bottom: 8px;">遅刻・欠席登録</div>
-            <div style="color: #444; margin-bottom: 28px; font-size: 1.05em;">遅刻または欠席情報を入力してください</div>
+            <div class="attendance-title">遅刻・欠席登録</div>
+            <div class="attendance-desc">遅刻または欠席情報を入力してください</div>
             <form method="post" action="">
                 <input type="hidden" name="fuel_csrf_token" value="<?php echo Security::fetch_token(); ?>">
-                <div style="margin-bottom: 22px;">
-                    <label for="type" style="font-weight: 500; display: block; margin-bottom: 6px;">遅刻または欠席</label>
-                    <select id="type" name="type" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background: #f5f5f5; font-size: 1em;">
+                <div class="attendance-field">
+                    <label for="type" class="attendance-label">遅刻または欠席</label>
+                    <select id="type" name="type" class="attendance-select" required>
                         <option value="">遅刻か欠席か選択してください</option>
                         <option value="late">遅刻</option>
                         <option value="absence">欠席</option>
                     </select>
                 </div>
-                <div style="margin-bottom: 22px;">
-                    <label for="attendance_date" style="font-weight: 500; display: block; margin-bottom: 6px;">遅刻・欠席日</label>
-                    <input type="date" id="attendance_date" name="attendance_date" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background: #f5f5f5; font-size: 1em;">
+                <div class="attendance-field">
+                    <label for="attendance_date" class="attendance-label">遅刻・欠席日</label>
+                    <input type="date" id="attendance_date" name="attendance_date" class="attendance-date" required>
                 </div>
-                <div style="margin-bottom: 28px;">
-                    <label for="reason" style="font-weight: 500; display: block; margin-bottom: 6px;">遅刻・欠席理由</label>
-                    <textarea id="reason" name="reason" required placeholder="欠席理由を詳細に記入してください" style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background: #fafafa; font-size: 1em;"></textarea>
+                <div class="attendance-field-large">
+                    <label for="reason" class="attendance-label">遅刻・欠席理由</label>
+                    <textarea id="reason" name="reason" class="attendance-textarea" required placeholder="欠席理由を詳細に記入してください"></textarea>
                 </div>
-                <button type="submit" style="width: 100%; background: #111; color: #fff; font-size: 1.1em; font-weight: bold; padding: 13px 0; border: none; border-radius: 4px; cursor: pointer; letter-spacing: 0.05em;">遅刻・欠席登録</button>
+                <button type="submit" class="attendance-submit">遅刻・欠席登録</button>
             </form>
         </div>
     </div>

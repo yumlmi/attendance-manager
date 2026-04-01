@@ -10,6 +10,22 @@ class Controller_Api_AttendanceEntry extends Controller_Rest
 {
     protected $format = 'json';
 
+    /**
+     * ログインユーザーを取得
+     *
+     * @return array|null
+     */
+    protected function get_login_user()
+    {
+        $login_user = Session::get('login_user', []);
+
+        if (empty($login_user['id'])) {
+            return null;
+        }
+
+        return $login_user;
+    }
+
     // POST /api/attendanceentry/update
     public function post_update()
     {
@@ -22,8 +38,8 @@ class Controller_Api_AttendanceEntry extends Controller_Rest
                 ], 400);
             }
 
-            $login_user = Session::get('login_user', []);
-            if (empty($login_user['id'])) {
+            $login_user = $this->get_login_user();
+            if ($login_user === null) {
                 return $this->response([
                     'error' => 'ログインが必要です',
                     'csrf_token' => Security::fetch_token(),
@@ -102,8 +118,8 @@ class Controller_Api_AttendanceEntry extends Controller_Rest
                 ], 400);
             }
 
-            $login_user = Session::get('login_user', []);
-            if (empty($login_user['id'])) {
+            $login_user = $this->get_login_user();
+            if ($login_user === null) {
                 return $this->response([
                     'error' => 'ログインが必要です',
                     'csrf_token' => Security::fetch_token(),
@@ -133,42 +149,48 @@ class Controller_Api_AttendanceEntry extends Controller_Rest
                     'csrf_token' => Security::fetch_token(),
                 ], 400);
             }
-            // ...existing code...
+            // 既存登録チェック（同一ユーザー・同日・同種別）
+            $exists = DB::select('id')
+                ->from('attendances')
+                ->where('user_id', '=', $login_user['id'])
+                ->where('attendance_date', '=', $attendance_date)
+                ->where('type', '=', $type)
+                ->execute()
+                ->current();
+            if ($exists) {
+                return $this->response([
+                    'error' => '同じ日付・種別で既に登録済みです',
+                    'csrf_token' => Security::fetch_token(),
+                ], 409);
+            }
+
+            // 登録
+            $now = time();
+            $result = DB::insert('attendances')->set([
+                'user_id' => $login_user['id'],
+                'attendance_date' => $attendance_date,
+                'type' => $type,
+                'reason' => $reason,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])->execute();
+
+            if ($result) {
+                return $this->response([
+                    'success' => true,
+                    'csrf_token' => Security::fetch_token(),
+                ], 201);
+            }
+
+            return $this->response([
+                'error' => '登録に失敗しました',
+                'csrf_token' => Security::fetch_token(),
+            ], 500);
         } catch (\Exception $e) {
             return $this->response([
                 'error' => 'サーバーエラー: ' . $e->getMessage(),
                 'csrf_token' => Security::fetch_token(),
             ], 500);
-        }
-
-        // 既存登録チェック（同一ユーザー・同日・同種別）
-        $exists = DB::select('id')
-            ->from('attendances')
-            ->where('user_id', '=', $login_user['id'])
-            ->where('attendance_date', '=', $attendance_date)
-            ->where('type', '=', $type)
-            ->execute()
-            ->current();
-        if ($exists) {
-            return $this->response(['error' => '同じ日付・種別で既に登録済みです'], 409);
-        }
-
-        // 登録
-        $now = time();
-        $result = DB::insert('attendances')->set([
-            'user_id' => $login_user['id'],
-            'attendance_date' => $attendance_date,
-            'type' => $type,
-            'reason' => $reason,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ])->execute();
-
-        if ($result) {
-            \Response::redirect('/dashboard');
-            return; // 念のため
-        } else {
-            return $this->response(['error' => '登録に失敗しました'], 500);
         }
     }
 }

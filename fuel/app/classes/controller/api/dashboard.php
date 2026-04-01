@@ -12,6 +12,13 @@ class Controller_Api_Dashboard extends Controller_Rest
 
     public function get_index()
     {
+        $login_user = Session::get('login_user', []);
+        if (empty($login_user['id'])) {
+            return $this->response([
+                'error' => 'ログインが必要です',
+            ], 401);
+        }
+
         // クエリで日付指定があればその日付、なければ今日
         $query_date = 
             isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date'])
@@ -22,7 +29,6 @@ class Controller_Api_Dashboard extends Controller_Rest
         $month = date('m', strtotime($today));
 
         // ログインユーザー取得
-        $login_user = Session::get('login_user', []);
         $club_name = isset($login_user['club_name']) ? $login_user['club_name'] : null;
 
         $absent_members = [];

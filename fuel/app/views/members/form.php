@@ -3,16 +3,17 @@ $is_edit = ($mode === 'edit');
 $action = $is_edit ? 'members/edit/'.$member_id : 'members/create';
 ?>
 
+<?php echo Asset::css('members_form.css'); ?>
 
-<div style="text-align:right;">
-<?php echo Form::open('logout', array('method' => 'post', 'style' => 'display:inline;')); ?>
+<div class="members-form-top">
+<?php echo Form::open('logout', array('method' => 'post', 'class' => 'members-inline-form')); ?>
 	<?php echo Form::submit('logout', 'ログアウト'); ?>
 <?php echo Form::close(); ?>
 </div>
 <h1><?php echo $is_edit ? 'メンバー編集' : 'メンバー作成'; ?></h1>
 
 <?php if ( ! empty($error)): ?>
-	<p style="color: #c00;"><?php echo e($error); ?></p>
+	<p class="members-form-error"><?php echo e($error); ?></p>
 <?php endif; ?>
 
 <?php echo Form::open(array('action' => $action, 'method' => 'post')); ?>

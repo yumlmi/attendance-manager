@@ -1,0 +1,10 @@
+body {
+  margin: 0 0 40px 0;
+}
+.welcome-top {
+  text-align: right;
+  padding: 12px 20px;
+}
+.welcome-logout-form {
+  display: inline;
+}
