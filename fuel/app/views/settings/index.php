@@ -117,16 +117,29 @@
 		</div>
 		<div class="main">
 			<div class="settings-title">設定</div>
-			<form class="settings-section">
+			<?php if (Session::get_flash('success')): ?>
+				<div style="background:#e8f7ee; border:1px solid #63b37f; color:#1f6b3b; padding:10px 12px; border-radius:8px; margin-bottom:14px; max-width:600px;">
+					<?php echo e(Session::get_flash('success')); ?>
+				</div>
+			<?php endif; ?>
+			<?php if (Session::get_flash('error')): ?>
+				<div style="background:#fdeeee; border:1px solid #d27a7a; color:#8f2f2f; padding:10px 12px; border-radius:8px; margin-bottom:14px; max-width:600px;">
+					<?php echo e(Session::get_flash('error')); ?>
+				</div>
+			<?php endif; ?>
+
+			<?php echo Form::open(['action' => 'settings/update', 'method' => 'post', 'class' => 'settings-section']); ?>
 				<div class="settings-label">部員情報</div>
 				<div style="margin-bottom: 16px"></div>
-				<div class="settings-label" style="font-weight: normal">氏名</div>
-				<input type="text" class="settings-input" placeholder="氏名" value="<?php echo e($login_user['username'] ?? ''); ?>" readonly />
-				<div class="settings-label" style="font-weight: normal">学年</div>
-				<input type="text" class="settings-input" placeholder="学年" value="<?php echo e($login_user['grade'] ?? ''); ?>" readonly />
-				<div class="settings-label" style="font-weight: normal">メールアドレス</div>
-				<input type="email" class="settings-input" placeholder="メールアドレス" value="<?php echo e($login_user['mail'] ?? ''); ?>" readonly />
-			</form>
+				   <div class="settings-label" style="font-weight: normal">氏名</div>
+				   <input type="text" name="username" class="settings-input" placeholder="氏名" value="<?php echo e($login_user['username'] ?? ''); ?>" required />
+				   <div class="settings-label" style="font-weight: normal">学年</div>
+				   <input type="number" min="1" max="3" name="grade" class="settings-input" placeholder="学年" value="<?php echo e($login_user['grade'] ?? ''); ?>" required />
+				   <div class="settings-label" style="font-weight: normal">メールアドレス</div>
+				   <input type="email" name="mail" class="settings-input" placeholder="メールアドレス" value="<?php echo e($login_user['mail'] ?? ''); ?>" required />
+				   <?php echo Form::hidden('fuel_csrf_token', Security::fetch_token()); ?>
+				   <button type="submit" class="settings-input" style="background:#222; color:#fff; font-weight:bold; cursor:pointer; margin-top:8px;">保存</button>
+			<?php echo Form::close(); ?>
 		</div>
 	</body>
 </html>
